@@ -13,13 +13,15 @@ def load_data(file_path: str):
 
     for i in range(n_data):
         property_data.append(PropertyData(data_frame['property_price'][i], data_frame['initial_deposit'][i],
-                                          data_frame['salary_net_per_year'][i], data_frame['loan_interest_rate'][i],
+                                          data_frame['salary_net_per_year'][i], data_frame['monthly_living_expenses'][i],
+                                          data_frame['loan_interest_rate'][i],
                                           data_frame['strata_q'][i], data_frame['council_q'][i],
                                           data_frame['water_q'][i], data_frame['home_name'][i]))
 
         rent_data.append(RentData(data_frame['renting_per_week'][i],
                                   data_frame['salary_net_per_year'][i],
                                   data_frame['initial_deposit'][i],
+                                  data_frame['monthly_living_expenses'][i],
                                   data_frame['savings_interest_rate'][i]))
 
     return property_data, rent_data
@@ -27,7 +29,7 @@ def load_data(file_path: str):
 
 if __name__ == '__main__':
 
-    p_data, r_data = load_data('../data/financial_data.csv')
+    p_data, r_data = load_data('../data/financial_data_sample.csv')
 
     total = len(p_data)
     current = 0

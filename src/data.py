@@ -1,13 +1,12 @@
-living_expenses_monthly = 4200
-
-
 class PropertyData:
 
-    def __init__(self, property_price, initial_deposit, salary_net_year, loan_interest_rate,
+    def __init__(self, property_price, initial_deposit, salary_net_year, monthly_living_expenses,
+                 loan_interest_rate,
                  strata_q: int = 1400, council_q: int = 300, water_q: int = 200, home_name: str = 'My New Home'):
-        # Fixed data for now
-        self.living_expenses = int(living_expenses_monthly * 12)  # 4,200/month
+
         self.interest_rate = loan_interest_rate
+
+        self.living_expenses = int(monthly_living_expenses * 12)
 
         # Buying costs
         self.property_price = property_price
@@ -27,22 +26,20 @@ class PropertyData:
 
         self.home_name = home_name
 
-        print(self.home_name)
-
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
 
 class RentData:
 
-    def __init__(self, rent_week, salary_net_year, initial_savings, savings_interest_rate: float = 0.025,
-                 tax_rate: float = 0.37):
-        # Fixed data for now
-        self.living_expenses = int(living_expenses_monthly * 12)  # 4,200/month
+    def __init__(self, rent_week, salary_net_year, initial_savings, monthly_living_expenses,
+                 savings_interest_rate: float = 0.025, tax_rate: float = 0.37):
+
         self.tax_rate = tax_rate
         self.savings_rate_brut = savings_interest_rate
         self.savings_rate_net = self.savings_rate_brut * (1 - self.tax_rate)
-        print("Tax rate: {}", self.tax_rate)
+
+        self.living_expenses = int(monthly_living_expenses * 12)
 
         # Renting costs
         self.rent_week = rent_week
