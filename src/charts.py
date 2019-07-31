@@ -70,21 +70,26 @@ if __name__ == '__main__':
         plt.figure(current)
         plt.suptitle(p.home_name, fontweight='bold')
 
-        plt.subplot(2, 1, 1)
+        plt.subplot(3, 1, 1)
         plt.plot(years, cost_of_renting, '-rs', label='Cost of renting')
         plt.plot(years, mortgage_over_years, '-gs', label='Mortgage')
         plt.plot(years, mortgage_over_years_with_other_outgoings, '-bs', label='Total costs of owning')
+        plt.title("Cost of renting v.s buying over the years")
         plt.ylabel('$ value')
         plt.xlabel('Years')
-        plt.title("Cost of renting v.s buying over the years")
         plt.legend()
 
         # 2nd chart
-        plt.subplot(2, 1, 2)
+        plt.subplot(3, 1, 2)
         plt.plot(years, property_value_over_years, '-r', label='Property value')
         plt.plot(years, loan_over_years, '-ms', label='Loan')
         plt.plot(years, savings_over_years, '-ys', label='Savings (no loan)')
         plt.title("Mortgage vs savings over years")
+        plt.ylabel('$ value')
+        plt.xlabel('Years')
+        plt.legend()
+
+        plt.figtext(0.1, 0.1, "Property price: {}\nOwner costs/year: {}".format(p.property_price, p.owner_costs_per_year))
 
         current += 1
         if current >= total:
