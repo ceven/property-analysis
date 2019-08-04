@@ -1,3 +1,5 @@
+from math import ceil
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from data import *
@@ -13,7 +15,8 @@ def load_data(file_path: str):
 
     for i in range(n_data):
         property_data.append(PropertyData(data_frame['property_price'][i], data_frame['initial_deposit'][i],
-                                          data_frame['salary_net_per_year'][i], data_frame['monthly_living_expenses'][i],
+                                          data_frame['salary_net_per_year'][i],
+                                          data_frame['monthly_living_expenses'][i],
                                           data_frame['loan_interest_rate'][i],
                                           data_frame['strata_q'][i], data_frame['council_q'][i],
                                           data_frame['water_q'][i], data_frame['home_name'][i]))
@@ -27,12 +30,15 @@ def load_data(file_path: str):
     return property_data, rent_data
 
 
-if __name__ == '__main__':
-
-    p_data, r_data = load_data('../data/financial_data_sample.csv')
-
+def display_charts(p_data, r_data):
     total = len(p_data)
+    charts_per_page = 2
+    page = 1
     current = 0
+
+    plt.ion()
+    plt.show()
+
     for p, r in zip(p_data, r_data):
         loan_over_years = list(range(p.initial_loan, 0, -(p.savings_per_year - p.owner_costs_per_year)))
         if loan_over_years[-1] > 0:
@@ -89,9 +95,21 @@ if __name__ == '__main__':
         plt.xlabel('Years')
         plt.legend()
 
-        plt.figtext(0.1, 0.1, "Property price: {}\nOwner costs/year: {}".format(p.property_price, p.owner_costs_per_year))
+        plt.figtext(0.1, 0.1,
+                    "Property price: {}\nOwner costs/year: {}".format(p.property_price, p.owner_costs_per_year))
 
         current += 1
+        if current >= min(total, charts_per_page * page):
+            plt.draw()
+            plt.pause(0.001)
+            input("Press key to continue...")
+            plt.close('all')
+            page += 1
         if current >= total:
-            # Display charts
-            plt.show()
+            break
+
+
+if __name__ == '__main__':
+    pd, rd = load_data('../data/financial_data_sold_properties.csv')
+    display_charts(pd, rd)
+    print("Done")

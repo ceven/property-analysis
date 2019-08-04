@@ -1,6 +1,12 @@
 .idea/
 __pycache*
+
+# Data
 data/financial_data.csv
 data/financial_data_old.csv
 data/property_data.csv
 data/property_data_old.csv
+private
+
+#venv
+venv

@@ -33,7 +33,7 @@ class PropertyData:
 class RentData:
 
     def __init__(self, rent_week, salary_net_year, initial_savings, monthly_living_expenses,
-                 savings_interest_rate: float = 0.025, tax_rate: float = 0.37):
+                 savings_interest_rate: float = 0.025, tax_rate: float = 0.37, home_name: str = 'My Rental Home'):
 
         self.tax_rate = tax_rate
         self.savings_rate_brut = savings_interest_rate
@@ -49,6 +49,8 @@ class RentData:
         self.salaries_net_per_year = salary_net_year
         self.savings_per_year = self.salaries_net_per_year - self.living_expenses
         self.initial_savings = initial_savings
+
+        self.home_name = home_name
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
