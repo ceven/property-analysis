@@ -3,6 +3,7 @@ cachetools==3.1.1
 certifi==2019.6.16
 chardet==3.0.4
 cycler==0.10.0
+Django==2.2.4
 firebase-admin==2.17.0
 google-api-core==1.14.2
 google-api-python-client==1.7.10
@@ -31,5 +32,6 @@ pytz==2019.1
 requests==2.22.0
 rsa==4.0
 six==1.12.0
+sqlparse==0.3.0
 uritemplate==3.0.0
 urllib3==1.25.3

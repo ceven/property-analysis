@@ -9,7 +9,7 @@ from numpy import int64
 
 from data import PropertyData, RentData
 
-cred = credentials.Certificate("./private/key.json")
+cred = credentials.Certificate("./private/firebase-key.json")
 app = firebase_admin.initialize_app(cred, {'databaseURL': 'https://property-analysis-dccc1.firebaseio.com'})
 property_loc = db.reference('property')
 property_own_loc = property_loc.child('own')
@@ -71,6 +71,12 @@ def get_all_properties_list() -> ([], []):
                                   rent_property_json['savings_rate_brut']))
 
     return property_data, rent_data
+
+
+def get_all_properties_json():
+    p, r = get_all_properties_list()
+    p_d = json.dumps([p_.__dict__ for p_ in p], default=json_data_converter)
+    return json.loads(p_d)
 
 
 def json_data_converter(o):
