@@ -1,4 +1,5 @@
 import json
+from collections import namedtuple
 
 import firebase_admin
 import typing
@@ -57,7 +58,7 @@ def get_all_properties_list() -> ([], []):
         property_data.append(PropertyData(v['property_price'],
                                           v['initial_deposit'],
                                           v['salaries_net_per_year'],
-                                          v['living_expenses']/12,
+                                          v['living_expenses'] / 12,
                                           v['interest_rate'],
                                           v['strata_q'],
                                           v['council_q'],
@@ -67,7 +68,7 @@ def get_all_properties_list() -> ([], []):
         rent_data.append(RentData(rent_property_json['rent_week'],
                                   rent_property_json['salaries_net_per_year'],
                                   rent_property_json['initial_savings'],
-                                  rent_property_json['living_expenses']/12,
+                                  rent_property_json['living_expenses'] / 12,
                                   rent_property_json['savings_rate_brut']))
 
     return property_data, rent_data
@@ -76,7 +77,12 @@ def get_all_properties_list() -> ([], []):
 def get_all_properties_json():
     p, r = get_all_properties_list()
     p_d = json.dumps([p_.__dict__ for p_ in p], default=json_data_converter)
-    return json.loads(p_d)
+    r_d = json.dumps([r_.__dict__ for r_ in r], default=json_data_converter)
+    return json.loads(p_d, object_hook=_json_object_hook), json.loads(r_d, object_hook=_json_object_hook)
+
+
+def _json_object_hook(d):
+    return namedtuple('X', d.keys())(*d.values())
 
 
 def json_data_converter(o):
