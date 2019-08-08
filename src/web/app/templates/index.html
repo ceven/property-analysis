@@ -5,8 +5,13 @@
   <p>Compare properties you would like to purchase.</p>
   <p>The following properties are available to compare:</p>
   <ul>
-    <li> {{ home_name }}</li>
+    {% for h in homes %}
+    <li> {{ h.home_name }}</li>
+    {% endfor %}
   </ul>
-  <a href="/property/svg"> <img src="data:image/png;base64,{{ graphic }}"></a>
+  <h1>Graphs</h1>
+  {% for g in graphs %}
+    <a href="/property/svg"> <img src="data:image/png;base64,{{ g }}"></a>
+  {% endfor %}
 
 {% endblock %}
