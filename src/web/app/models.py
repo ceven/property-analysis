@@ -1,8 +1,13 @@
 from typing import Tuple
 
-from firebasemiddleware import get_all_properties_json
+import firebasemiddleware
 
 
 # Create your models here.
 def get_property_data() -> ([], []):
-    return get_all_properties_json()
+    return firebasemiddleware.get_all_properties_json()
+
+
+def get_property_by_name(home_name: str) -> (object, object):
+    return firebasemiddleware.get_property_json(home_name)
+

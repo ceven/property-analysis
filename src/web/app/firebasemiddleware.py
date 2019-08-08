@@ -16,6 +16,8 @@ property_own_loc = property_loc.child('own')
 property_rent_loc = property_loc.child('rent')
 
 
+# TODO implement cache for firebase data (sqlite for persistence)
+
 def check_rights() -> None:
     ref = db.reference('restricted_access/secret_document')
     print(ref.get())
@@ -33,6 +35,10 @@ def add_rent_for_property(rent: RentData) -> None:
 
 def get_property(prop_name: str):
     return property_own_loc.child(prop_name).get()
+
+
+def get_property_rent(prop_name: str) -> object:
+    return property_rent_loc.child(prop_name).get()
 
 
 def get_all_properties() -> typing.Dict:
@@ -57,7 +63,7 @@ def get_all_properties_list() -> ([], []):
         property_data.append(PropertyData(v['property_price'],
                                           v['initial_deposit'],
                                           v['salaries_net_per_year'],
-                                          v['living_expenses']/12,
+                                          v['living_expenses'] / 12,
                                           v['interest_rate'],
                                           v['strata_q'],
                                           v['council_q'],
@@ -67,7 +73,7 @@ def get_all_properties_list() -> ([], []):
         rent_data.append(RentData(rent_property_json['rent_week'],
                                   rent_property_json['salaries_net_per_year'],
                                   rent_property_json['initial_savings'],
-                                  rent_property_json['living_expenses']/12,
+                                  rent_property_json['living_expenses'] / 12,
                                   rent_property_json['savings_rate_brut']))
 
     return property_data, rent_data
@@ -78,16 +84,20 @@ def json_data_converter(o):
         return int(o)
 
 
-def save_data() -> None:
-    p_data, r_data = load_data('./data/financial_data_sold_properties.csv')
+def save_csv_data(file_name: str) -> None:
+    p_data, r_data = load_data(file_name)
 
     for p, r in zip(p_data, r_data):
         add_property(p)
         add_rent_for_property(r)
 
 
+def save_sample_data() -> None:
+    save_csv_data('./data/financial_data_sold_properties.csv')
+
+
 if __name__ == '__main__':
-    # save_data()
+    # save_sample_data()
     i, j = get_all_properties_list()
     print(i, j)
     display_charts(i, j)

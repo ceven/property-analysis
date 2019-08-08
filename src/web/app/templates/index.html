@@ -6,12 +6,13 @@
   <p>The following properties are available to compare:</p>
   <ul>
     {% for h in homes %}
-    <li> {{ h.home_name }}</li>
+    <!--    FIXME change href to /property/{{h.home_name}} when page is ready -->
+    <li> <a href="/property/{{h.home_name}}/graph">{{ h.home_name }}</a></li>
     {% endfor %}
   </ul>
   <h1>Graphs</h1>
   {% for g in graphs %}
-    <a href="/property/svg"> <img src="data:image/png;base64,{{ g }}"></a>
+    <a href="/property/{{g.home_name}}/graph"> <img src="data:image/png;base64,{{ g.image_png_base64 }}"></a>
   {% endfor %}
 
 {% endblock %}
