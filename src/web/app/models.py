@@ -1,6 +1,5 @@
 import os
 import re
-import urllib.parse
 
 import data
 import firebasemiddleware
@@ -23,9 +22,10 @@ def get_property_by_name(home_name: str) -> object:
 
 
 def import_csv_properties(file_path: str):
-    d = data.load_data(file_path)
-    os.remove(file_path)
-    return d
+    success = firebasemiddleware.save_csv_data(file_path, None)
+    if success:
+        os.remove(file_path)
+    return success
 
 
 def import_property(form: forms.PropertyForm) -> bool:
@@ -38,5 +38,4 @@ def import_property(form: forms.PropertyForm) -> bool:
         water_q=form_data['water_q'],
         council_q=form_data['council_q']
     )
-    # TODO decouple financials not tied in to property
     return firebasemiddleware.add_property(p_data)

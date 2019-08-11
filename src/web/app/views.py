@@ -11,11 +11,12 @@ from . import models
 Graph = namedtuple('Graph', 'home_name image_png_base64')
 
 
+# TODO implement removing property
+
 # Create your views here.
 def index(request):
     p_data, r_data = models.get_all_properties_json()
-    graphs = [Graph(home_name=p.home_name, image_png_base64=charts.get_chart_graphic(p, r))
-              for (p, r) in zip(p_data, r_data)]
+    graphs = [Graph(home_name=p.home_name, image_png_base64=charts.get_chart_graphic(p, r_data)) for p in p_data]
     context = {'graphs': graphs, 'homes': p_data}
     return render(request, 'index.html', context=context)  # TODO try to render image as svg instead of png
 

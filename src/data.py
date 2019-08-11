@@ -22,34 +22,24 @@ class PropertyData:
         self.water_q = water_q
         self.owner_costs_per_year = (self.strata_q + self.council_q + self.water_q) * 4
 
-    def update(self, initial_deposit: int = 0,
-               salary_net_year: int = 50000,
-               monthly_living_expenses: int = 2100,
-               loan_interest_rate: float = 0.04):
-        self.initial_deposit = initial_deposit
-        self.initial_loan = self.property_price - initial_deposit + first_home_stamp_duty(self.property_price)
-        self.interest_rate = loan_interest_rate
-        self.living_expenses = int(monthly_living_expenses * 12)
-        # Savings
-        self.salaries_net_per_year = salary_net_year
-        self.savings_per_year = self.salaries_net_per_year - self.living_expenses
-
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
 
-class RentData:
+class PersonalFinanceData:
 
     def __init__(self, rent_week, salary_net_year, initial_savings, monthly_living_expenses,
-                 savings_interest_rate: float = 0.025, tax_rate: float = 0.37,
+                 savings_interest_rate: float = 0.025, tax_rate: float = 0.37, loan_interest_rate: float = 0.035,
                  home_name: str = BASELINE_RENT_HOME_NAME):
         assert rent_week
         assert salary_net_year
         assert initial_savings
         assert monthly_living_expenses
+
         self.tax_rate = tax_rate
         self.savings_rate_brut = savings_interest_rate
         self.savings_rate_net = self.savings_rate_brut * (1 - self.tax_rate)
+        self.loan_interest_rate = loan_interest_rate
 
         self.living_expenses = int(monthly_living_expenses * 12)
 
@@ -77,30 +67,31 @@ def first_home_stamp_duty(property_price: float = free_stamp_duty_threshold) -> 
     return int(8990 + 4.5 / 100 * (property_price - free_stamp_duty_threshold))
 
 
-def load_data(file_path: str):
+def load_data(property_file_path: str, finance_file_path: str) -> ([], object):
+    perso_finance = None
+    if finance_file_path:
+        data_frame = pd.read_csv(finance_file_path, skipinitialspace=True, skip_blank_lines=True)
+        perso_finance = PersonalFinanceData(rent_week=data_frame['rent_week'][0],
+                                            salary_net_year=data_frame['salary_net_year'][0],
+                                            initial_savings=data_frame['initial_deposit'][0],
+                                            monthly_living_expenses=data_frame['monthly_living_expenses'][0],
+                                            savings_interest_rate=data_frame['savings_interest_rate'][0],
+                                            loan_interest_rate=data_frame['loan_interest_rate'][0])
+
+    property_data = get_property_data(property_file_path) if property_file_path else None
+    return property_data, perso_finance
+
+
+def get_property_data(file_path: str) -> []:
+    if not file_path:
+        return []
     data_frame = pd.read_csv(file_path, skipinitialspace=True, skip_blank_lines=True)
-
     n_data = len(data_frame)
+    property_data = [PropertyData(property_price=data_frame['property_price'][i],
+                                  strata_q=data_frame['strata_q'][i],
+                                  council_q=data_frame['council_q'][i],
+                                  water_q=data_frame['water_q'][i],
+                                  home_name=data_frame['home_name'][i])
+                     for i in range(n_data)]
 
-    property_data = []
-    rent_data = []
-
-    for i in range(n_data):
-        p_data = PropertyData(property_price=data_frame['property_price'][i],
-                              strata_q=data_frame['strata_q'][i],
-                              council_q=data_frame['council_q'][i],
-                              water_q=data_frame['water_q'][i],
-                              home_name=data_frame['home_name'][i])
-        p_data.update(initial_deposit=data_frame['initial_deposit'][i],
-                      salary_net_year=data_frame['salary_net_per_year'][i],
-                      monthly_living_expenses=data_frame['monthly_living_expenses'][i],
-                      loan_interest_rate=data_frame['loan_interest_rate'][i], )
-        property_data.append(p_data)
-
-        rent_data.append(RentData(data_frame['renting_per_week'][i],
-                                  data_frame['salary_net_per_year'][i],
-                                  data_frame['initial_deposit'][i],
-                                  data_frame['monthly_living_expenses'][i],
-                                  data_frame['savings_interest_rate'][i]))
-
-    return property_data, rent_data
+    return property_data
