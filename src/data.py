@@ -25,7 +25,7 @@ class PropertyData:
     def update(self, initial_deposit: int = 0,
                salary_net_year: int = 50000,
                monthly_living_expenses: int = 2100,
-               loan_interest_rate: int = 0.04):
+               loan_interest_rate: float = 0.04):
         self.initial_deposit = initial_deposit
         self.initial_loan = self.property_price - initial_deposit + first_home_stamp_duty(self.property_price)
         self.interest_rate = loan_interest_rate

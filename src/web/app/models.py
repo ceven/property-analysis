@@ -1,14 +1,13 @@
 import os
-from collections import namedtuple
+import re
+import urllib.parse
 
-from django.forms import model_to_dict
-
-import firebasemiddleware
 import data
-
-
+import firebasemiddleware
 # Create your models here.
 from . import forms
+
+ALPHA_REGEX = re.compile('[^a-zA-Z0-9]')
 
 
 def get_all_properties_json() -> ([], []):
@@ -31,6 +30,7 @@ def import_csv_properties(file_path: str):
 
 def import_property(form: forms.PropertyForm) -> bool:
     form_data = form.cleaned_data
+    form_data['home_name'] = ALPHA_REGEX.sub('', form_data['home_name'])
     p_data = data.PropertyData(
         home_name=form_data['home_name'],
         property_price=form_data['property_price'],
