@@ -11,7 +11,8 @@ from . import models
 Graph = namedtuple('Graph', 'home_name image_png_base64')
 
 
-# TODO implement removing property
+# TODO implement removing property and updating property
+# TODO implement 'compare' function between property of interest and similar sales
 
 # Create your views here.
 def index(request):
