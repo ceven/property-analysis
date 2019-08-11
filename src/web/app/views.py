@@ -1,11 +1,11 @@
-import os
 from collections import namedtuple
 
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 import charts
+from . import forms
 from . import models
 
 Graph = namedtuple('Graph', 'home_name image_png_base64')
@@ -38,10 +38,21 @@ def get_property(request, home_name):
 
 def upload(request):
     context = {}
-    if request.method == 'POST' and request.FILES['csvpropertiesfile']:
-        f = request.FILES['csvpropertiesfile']
-        fs = FileSystemStorage()
-        filename = fs.save(f.name, f)
-        models.import_csv_properties(fs.path(filename))
-        context.update({'success': True})
+    if request.method == 'POST':
+        if request.FILES and request.FILES['csvpropertiesfile']:
+            file = request.FILES['csvpropertiesfile']
+            fs = FileSystemStorage()
+            filename = fs.save(file.name, file)
+            models.import_csv_properties(fs.path(filename))
+            context.update({'success': True})
+        else:
+            form = forms.PropertyForm(request.POST)
+            if form.is_valid():
+                success = models.import_property(form)
+                if success:
+                    return redirect('/property/details/' + form.cleaned_data['home_name'])
+            context.update({'success': False})
+    else:
+        form = forms.PropertyForm()
+        context.update({'form': form})
     return render(request, 'upload_properties.html', context=context)

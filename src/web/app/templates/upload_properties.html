@@ -1,16 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Upload a CSV or add a property manually.</h1>
+  <h1>Add properties from a CSV file...</h1>
 
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="csvpropertiesfile">
-    <button type="submit">Add properties from CSV file</button>
-  </form>
+  <p>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="csvpropertiesfile">
+      <button type="submit">Add properties from CSV file</button>
+    </form>
+  </p>
+
+  <h1>... Or manually by entering property details:</h1>
+  <p>
+      <form method="post" enctype="application/x-www-form-urlencoded">
+      {% csrf_token %}
+      {{ form }}
+    <input type="submit" value="Add">
+    </form>
+  </p>
 
   {% if success %}
-    <p>Success!</p>
+    <h3>Successfully saved properties!</h3>
   {% endif %}
 
 {% endblock %}

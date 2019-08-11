@@ -23,9 +23,14 @@ def check_rights() -> None:
     print(ref.get())
 
 
-def add_property(prop: PropertyData) -> None:
-    json_prop = json.dumps(prop.__dict__, default=json_data_converter)
-    property_own_loc.child(prop.home_name).set(json_prop)
+def add_property(prop: PropertyData) -> bool:
+    try:
+        json_prop = json.dumps(prop.__dict__, default=json_data_converter)
+        property_own_loc.child(prop.home_name).set(json_prop)
+        return True
+    except Exception as e:
+        print("Could not save property", e)
+        return False
 
 
 def add_rent_for_property(rent: RentData) -> None:
@@ -64,15 +69,16 @@ def get_all_properties_list() -> ([], []):
     rent_data = []
     for v_raw in all_props.values():
         v = json.loads(v_raw)
-        property_data.append(PropertyData(v['property_price'],
-                                          v['initial_deposit'],
-                                          v['salaries_net_per_year'],
-                                          v['living_expenses'] / 12,
-                                          v['interest_rate'],
-                                          v['strata_q'],
-                                          v['council_q'],
-                                          v['water_q'],
-                                          v['home_name']))
+        p_data = PropertyData(property_price=v['property_price'],
+                              strata_q=v['strata_q'],
+                              council_q=v['council_q'],
+                              water_q=v['water_q'],
+                              home_name=v['home_name'])
+        p_data.update(initial_deposit=v['initial_deposit'],
+                      salary_net_year=v['salaries_net_per_year'],
+                      monthly_living_expenses=v['living_expenses'] / 12,
+                      loan_interest_rate=v['interest_rate'], )
+        property_data.append(p_data)
 
         rent_data.append(RentData(rent_property_json['rent_week'],
                                   rent_property_json['salaries_net_per_year'],
