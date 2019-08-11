@@ -33,15 +33,15 @@ def add_rent_for_property(rent: RentData) -> None:
     property_rent_loc.child(rent.home_name).set(json_prop)
 
 
-def get_property(prop_name: str) -> object:
+def get_property(prop_name: str) -> typing.Dict:
     return property_own_loc.child(prop_name).get()
 
 
-def get_property_rent(prop_name: str) -> object:
+def get_property_rent(prop_name: str) -> typing.Dict:
     return property_rent_loc.child(prop_name).get()
 
 
-def get_baseline_rent() -> object:
+def get_baseline_rent() -> typing.Dict:
     return get_property_rent('base')
 
 
@@ -90,12 +90,19 @@ def get_all_properties_json():
     return json.loads(p_d, object_hook=_json_object_hook), json.loads(r_d, object_hook=_json_object_hook)
 
 
-def get_property_json(home_name: str, use_baseline_rent: bool = True) -> (object, object):
+def get_property_and_rent_by_name_json(home_name: str, use_baseline_rent: bool = True) -> (object, object):
     p = get_property(home_name)
     if p is None:
         return p, None
     r = get_property_rent(data.BASELINE_RENT_HOME_NAME if use_baseline_rent else home_name)
     return json.loads(p, object_hook=_json_object_hook), json.loads(r, object_hook=_json_object_hook)
+
+
+def get_property_by_name_json(home_name: str) -> object:
+    p = get_property(home_name)
+    if p is None:
+        return p
+    return json.loads(p, object_hook=_json_object_hook)
 
 
 def _json_object_hook(d):
@@ -116,11 +123,12 @@ def save_csv_data(file_name: str) -> None:
 
 
 def save_sample_data() -> None:
-    save_csv_data('./data/financial_data_sold_properties.csv')
+    save_csv_data('./data/financial_data.csv')
 
 
 if __name__ == '__main__':
-    # save_sample_data()
-    i, j = get_all_properties_list()
-    print(i, j)
-    display_charts(i, j)
+    save_sample_data()
+    exit(0)
+    # i, j = get_all_properties_list()
+    # print(i, j)
+    # display_charts(i, j)

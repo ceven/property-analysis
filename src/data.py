@@ -1,3 +1,5 @@
+import pandas as pd
+
 BASELINE_HOME_NAME = 'My New Home'
 BASELINE_RENT_HOME_NAME = 'My Rental Home'
 
@@ -66,3 +68,28 @@ def first_home_stamp_duty(property_price: float = free_stamp_duty_threshold) -> 
     if property_price <= free_stamp_duty_threshold:
         return 0
     return int(8990 + 4.5 / 100 * (property_price - free_stamp_duty_threshold))
+
+
+def load_data(file_path: str):
+    data_frame = pd.read_csv(file_path, skipinitialspace=True, skip_blank_lines=True)
+
+    n_data = len(data_frame)
+
+    property_data = []
+    rent_data = []
+
+    for i in range(n_data):
+        property_data.append(PropertyData(data_frame['property_price'][i], data_frame['initial_deposit'][i],
+                                          data_frame['salary_net_per_year'][i],
+                                          data_frame['monthly_living_expenses'][i],
+                                          data_frame['loan_interest_rate'][i],
+                                          data_frame['strata_q'][i], data_frame['council_q'][i],
+                                          data_frame['water_q'][i], data_frame['home_name'][i]))
+
+        rent_data.append(RentData(data_frame['renting_per_week'][i],
+                                  data_frame['salary_net_per_year'][i],
+                                  data_frame['initial_deposit'][i],
+                                  data_frame['monthly_living_expenses'][i],
+                                  data_frame['savings_interest_rate'][i]))
+
+    return property_data, rent_data

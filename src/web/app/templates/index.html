@@ -1,4 +1,4 @@
-{% extends "index_base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
   <h1>Property Home</h1>
@@ -6,13 +6,14 @@
   <p>The following properties are available to compare:</p>
   <ul>
     {% for h in homes %}
-    <!--    FIXME change href to /property/{{h.home_name}} when page is ready -->
-    <li> <a href="/property/{{h.home_name}}/graph">{{ h.home_name }}</a></li>
+    <li> <a href="/property/details/{{h.home_name}}">{{ h.home_name }}</a></li>
     {% endfor %}
   </ul>
+  <p>Add more properties <a href="/property/upload">here</a>.</p>
   <h1>Graphs</h1>
   {% for g in graphs %}
-    <a href="/property/{{g.home_name}}/graph"> <img src="data:image/png;base64,{{ g.image_png_base64 }}"></a>
+    <a href="/property/details/{{g.home_name}}/graph">
+      <img src="data:image/png;base64,{{ g.image_png_base64 }}" alt="Click here"></a>
   {% endfor %}
 
 {% endblock %}
