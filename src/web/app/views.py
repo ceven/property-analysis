@@ -13,10 +13,11 @@ Graph = namedtuple('Graph', 'home_name image_png_base64')
 
 # TODO implement removing property and updating property
 # TODO implement 'compare' function between property of interest and similar sales
+# TODO implement ability to 'mark sold' property
 
 # Create your views here.
 def index(request):
-    p_data, r_data = models.get_all_properties_json()
+    p_data, r_data = models.get_all_properties()
     graphs = [Graph(home_name=p.home_name, image_png_base64=charts.get_chart_graphic(p, r_data)) for p in p_data]
     context = {'graphs': graphs, 'homes': p_data}
     return render(request, 'index.html', context=context)  # TODO try to render image as svg instead of png
@@ -58,3 +59,21 @@ def upload(request):
         form = forms.PropertyForm()
         context.update({'form': form})
     return render(request, 'upload_properties.html', context=context)
+
+
+def compare(request, home_name):
+    context = {}
+    if request.method == 'POST':
+        property_sold_form = forms.PropertySoldForm(request.POST)
+        if property_sold_form.is_valid():
+            imported = models.import_comparable_property(home_name, property_sold_form)
+            if imported:
+                context.update({'sold_properties': [imported]})  # FIXME append to
+    else:
+        p = models.get_property_by_name(home_name)
+        if p is not None:
+            context.update({'home': p})
+            comparable_properties = models.get_comparable_properties(home_name)
+            if comparable_properties:
+                context.update({'sold_properties': [comparable_properties]})
+    return render(request, 'compare.html', context=context)

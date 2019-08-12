@@ -7,3 +7,7 @@ class PropertyForm(forms.Form):
     strata_q = forms.IntegerField(label="Strata/q", min_value=0)
     water_q = forms.IntegerField(label="Water/q", min_value=0)
     council_q = forms.IntegerField(label="Council/q", min_value=0)
+
+
+class PropertySoldForm(PropertyForm):
+    sold_price = forms.IntegerField(label="Sold price", min_value=0)

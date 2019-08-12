@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1> Compare {{home.home_name}} with similar sold properties.</h1>
+  <p>
+  <p>Details: {{home}}</p> <!--TODO fix details to be more visually friendly-->
+
+  {% if sold_properties %}
+    <p>
+    {% for g in sold_properties %}
+      Sold property details: {{ g }}
+    {% endfor %}
+    </p>
+  {% endif %}
+
+  <h2>Enter similar sold property details:</h2>
+  <p>
+    <form method="post" enctype="application/x-www-form-urlencoded">
+      {% csrf_token %}
+      {{ sold_property_form }}
+    <input type="submit" value="Add">
+    </form>
+  </p>
+
+{% endblock %}

@@ -77,7 +77,7 @@ def get_chart_graphic(p: PropertyData, r: PersonalFinanceData, graphic_format: s
     return image
 
 
-def display_charts(p_data: [], r_data: PersonalFinanceData):
+def display_charts(p_data: [PropertyData], r_data: PersonalFinanceData):
     total = len(p_data)
     charts_per_page = 5
     page = 1
@@ -159,7 +159,7 @@ def display_charts(p_data: [], r_data: PersonalFinanceData):
 
 if __name__ == '__main__':
     # pd, rd = load_data('./data/financial_property_data_sold.csv', './data/my_finances.csv')
-    firebasemiddleware.save_csv_data('./data/financial_property_data_sold.csv', './data/my_finances.csv')
+    # firebasemiddleware.save_csv_data('./data/financial_property_data_sold.csv', './data/my_finances.csv')
     pd, rd = firebasemiddleware.get_all_properties_list()
     display_charts(pd, rd)
     print("Done")

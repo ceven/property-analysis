@@ -26,6 +26,14 @@ class PropertyData:
         return str(self.__class__) + ": " + str(self.__dict__)
 
 
+class PropertySoldData(PropertyData):
+    def __init__(self, sold_price: int, property_price, strata_q: int = 1400, council_q: int = 300, water_q: int = 200,
+                 home_name: str = BASELINE_HOME_NAME):
+        assert sold_price
+        super().__init__(property_price, strata_q, council_q, water_q, home_name)
+        self.sold_price = sold_price
+
+
 class PersonalFinanceData:
 
     def __init__(self, rent_week, salary_net_year, initial_savings, monthly_living_expenses,

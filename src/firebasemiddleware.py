@@ -1,12 +1,12 @@
 import json
 import typing
-from collections import namedtuple
 
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from numpy import int64
 
+import data
 from charts import load_data
 from data import PropertyData, PersonalFinanceData
 
@@ -24,7 +24,8 @@ def check_rights() -> None:
 
 def add_property(prop: PropertyData) -> bool:
     try:
-        json_prop = json.dumps(prop.__dict__, default=json_data_converter)
+        prop_str = json.dumps(prop.__dict__, default=json_data_converter)
+        json_prop = json.loads(prop_str)
         property_own_loc.child(prop.home_name).set(json_prop)
         return True
     except Exception as e:
@@ -33,8 +34,9 @@ def add_property(prop: PropertyData) -> bool:
 
 
 def add_perso_financial_data(f: PersonalFinanceData) -> None:
-    json_prop = json.dumps(f.__dict__, default=json_data_converter)
-    perso_data_loc.child(f.home_name).set(json_prop)
+    perso_data = json.dumps(f.__dict__, default=json_data_converter)
+    perso_data_json = json.loads(perso_data)
+    perso_data_loc.child(f.home_name).set(perso_data_json)
 
 
 def get_property(prop_name: str) -> typing.Dict:
@@ -51,68 +53,49 @@ def get_all_financial_data() -> typing.Dict:
 
 def get_perso_financial_data() -> typing.Dict:
     data = get_all_financial_data()
-    if data and len(data) > 0:
-        data = data.popitem()[1]
-    return data
+    return data if len(data) == 0 else data.popitem()[1]
 
 
-def get_perso_financial_data_json() -> typing.Dict:
-    data = get_perso_financial_data()
-    # FIXME should do this more elegantly
-    if data:
-        data = json.loads(data)
-    return data
+def get_all_properties_json() -> (typing.Dict, typing.Dict):
+    return get_all_properties(), get_perso_financial_data()
 
 
-def get_all_properties_list() -> ([], object):
-    all_props = get_all_properties()
-    perso_json = get_perso_financial_data_json()
-    property_data = []
-    if all_props:
-        for v_raw in all_props.values():
-            v = json.loads(v_raw)
-            p_data = PropertyData(property_price=v['property_price'],
-                                  strata_q=v['strata_q'],
-                                  council_q=v['council_q'],
-                                  water_q=v['water_q'],
-                                  home_name=v['home_name'])
-            property_data.append(p_data)
+def convert_to_property_data(d: typing.Dict) -> typing.Optional[PropertyData]:
+    if not d:
+        return None
+    return PropertyData(property_price=d['property_price'],
+                        strata_q=d['strata_q'],
+                        council_q=d['council_q'],
+                        water_q=d['water_q'],
+                        home_name=d['home_name'])
 
-    perso_data = None
-    if perso_json:
-        perso_data = PersonalFinanceData(rent_week=perso_json['rent_week'],
-                                         salary_net_year=perso_json['salaries_net_per_year'],
-                                         initial_savings=perso_json['initial_savings'],
-                                         monthly_living_expenses=perso_json['living_expenses'] / 12,
-                                         savings_interest_rate=perso_json['savings_rate_brut'])
 
+def convert_to_perso_financial_data(d: typing.Dict) -> typing.Optional[PersonalFinanceData]:
+    if not d:
+        return None
+    return PersonalFinanceData(rent_week=d['rent_week'],
+                               salary_net_year=d['salaries_net_per_year'],
+                               initial_savings=d['initial_savings'],
+                               monthly_living_expenses=d['living_expenses'] / 12,
+                               savings_interest_rate=d['savings_rate_brut'])
+
+
+def get_all_properties_list() -> ([PropertyData], typing.Optional[PersonalFinanceData]):
+    all_props, perso_json = get_all_properties_json()
+    property_data = [convert_to_property_data(v) for v in all_props.values()] if all_props else []
+    perso_data = convert_to_perso_financial_data(perso_json) if perso_json else None
     return property_data, perso_data
 
 
-def get_all_properties_json():
-    p, r = get_all_properties_list()
-    p_d = json.dumps([p_.__dict__ for p_ in p], default=json_data_converter)  # FIXME could find a more efficient way
-    r_d = json.dumps(r.__dict__, default=json_data_converter)
-    return json.loads(p_d, object_hook=_json_object_hook), json.loads(r_d, object_hook=_json_object_hook)
-
-
-def get_property_and_rent_by_name_json(home_name: str) -> (object, object):
+def get_property_and_rent_by_name(home_name: str) -> \
+        (typing.Optional[PropertyData], typing.Optional[PersonalFinanceData]):
     p = get_property(home_name)
-    if p is None:
-        return p, None
-    r = get_perso_financial_data()
-    return json.loads(p, object_hook=_json_object_hook), json.loads(r, object_hook=_json_object_hook)
+    r = None if p is None else get_perso_financial_data()
+    return convert_to_property_data(p), convert_to_perso_financial_data(r)
 
 
-def get_property_by_name_json(home_name: str) -> object:
-    p = get_property(home_name)
-    if p is None:
-        return p
-    return json.loads(p, object_hook=_json_object_hook)
-
-
-def _json_object_hook(d):
-    return namedtuple('X', d.keys())(*d.values())
+# def _json_object_hook(d):
+#     return namedtuple('X', d.keys())(*d.values())
 
 
 def json_data_converter(o):
@@ -144,3 +127,7 @@ if __name__ == '__main__':
     # i, j = get_all_properties_list()
     # print(i, j)
     # display_charts(i, j)
+
+
+def add_comparable_property(home_name: str, comparable_home: data.PropertySoldData):
+    return None
