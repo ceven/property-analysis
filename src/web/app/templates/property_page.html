@@ -2,7 +2,13 @@
 
 {% block content %}
   <h1> {{home.home_name}}</h1>
-  <p>Details: {{home}}</p> <!--TODO fix details to be more visually friendly-->
+<!--  <p>Details: {{home}}</p> &lt;!&ndash;TODO fix details to be more visually friendly&ndash;&gt;-->
+  <ul>
+    {% for k, v in home.items %}
+    <li>{{k}} - {{v}}</li> <!--TODO fix details to be more visually friendly-->
+    {% endfor %}
+  </ul>
+
   <p>
     Graph: <a href="/property/details/{{home.home_name}}/graph">
     <img src="data:image/png;base64,{{ home.image_png_base64 }}" alt="Click here"></a>
