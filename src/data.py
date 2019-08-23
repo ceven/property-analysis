@@ -37,7 +37,7 @@ class PropertySoldData(PropertyData):
 class PersonalFinanceData:
 
     def __init__(self, rent_week, salary_net_year, initial_savings, monthly_living_expenses,
-                 savings_interest_rate: float = 0.025, tax_rate: float = 0.37, loan_interest_rate: float = 0.035,
+                 savings_interest_rate: float = 0.025, tax_rate: float = 0.37, loan_interest_rate: float = 0.037,
                  home_name: str = BASELINE_RENT_HOME_NAME):
         assert rent_week
         assert salary_net_year

@@ -63,6 +63,7 @@ def get_all_properties_json() -> (typing.Dict, typing.Dict):
 def convert_to_property_data(d: typing.Dict) -> typing.Optional[PropertyData]:
     if not d:
         return None
+    # FIXME loan_interest_rate to pass in
     return PropertyData(property_price=d['property_price'],
                         strata_q=d['strata_q'],
                         council_q=d['council_q'],

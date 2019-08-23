@@ -8,31 +8,32 @@ import firebasemiddleware
 from data import *
 
 
-def get_chart_graphic(p: PropertyData, r: PersonalFinanceData, graphic_format: str = 'png'):
+def get_chart_graphic(p: PropertyData, r: PersonalFinanceData, graphic_format: str = 'png', solicitor_costs=2000):
     assert p
     assert r
-    initial_loan = p.property_price - r.initial_savings + first_home_stamp_duty(p.property_price)
-    loan_over_years = list(range(initial_loan, 0, -(r.savings_per_year - p.owner_costs_per_year)))
-    if loan_over_years[-1] > 0:
-        loan_over_years.append(0)
+    initial_loan = p.property_price - r.initial_savings + first_home_stamp_duty(p.property_price) + solicitor_costs
+    loan_over_years = [initial_loan]
 
-    mortgage_over_years = [int(r.loan_interest_rate * loan) for loan in loan_over_years]
+    yearly_interest = int(r.loan_interest_rate * initial_loan)
+    mortgage_over_years = [yearly_interest]
 
-    mortgage_over_years_with_other_outgoings = [int(m + p.owner_costs_per_year) for m in mortgage_over_years]
+    mortgage_over_years_with_other_outgoings = [int(yearly_interest + p.owner_costs_per_year)]
 
-    n_years = len(mortgage_over_years)
-    years = range(0, n_years)
+    cost_of_renting = [r.renting_price_per_year - r.savings_rate_net*r.initial_savings]
+    savings_over_years = [r.initial_savings]
+    year = 0
+    while loan_over_years[year] > 0:
+        loan_at_new_year_start = max(0, loan_over_years[year] + mortgage_over_years_with_other_outgoings[year] - r.savings_per_year)
+        loan_over_years.append(loan_at_new_year_start)
+        loan_interest_year = int(r.loan_interest_rate * loan_at_new_year_start)
+        mortgage_over_years.append(loan_interest_year)
+        mortgage_over_years_with_other_outgoings.append(loan_interest_year + p.owner_costs_per_year)
 
-    cost_of_renting = [r.renting_price_per_year for _ in years]
-    savings_over_years = [r.initial_savings for _ in years]
-    for y in range(1, n_years + 1):
-        interest_last_year = r.savings_rate_net * savings_over_years[y - 1]
+        savings_over_years.append(savings_over_years[year] + r.savings_per_year - cost_of_renting[year])
+        savings_interest_year = r.savings_rate_net * savings_over_years[year+1]
+        cost_of_renting.append(r.renting_price_per_year - savings_interest_year)
 
-        cost_of_renting[y - 1] -= interest_last_year
-
-        if y < n_years:
-            savings_over_years[y] = savings_over_years[y - 1] + \
-                                    r.savings_per_year - r.renting_price_per_year + interest_last_year
+        year += 1
 
     # Matplotlib figure
     fig = Figure()
@@ -41,6 +42,7 @@ def get_chart_graphic(p: PropertyData, r: PersonalFinanceData, graphic_format: s
     splt = fig.add_subplot(311)
 
     # 1st chart
+    years = range(0, len(loan_over_years))
     splt.plot(years, cost_of_renting, '-rs', label='Cost of renting')
     splt.plot(years, mortgage_over_years, '-gs', label='Mortgage')
     splt.plot(years, mortgage_over_years_with_other_outgoings, '-bs', label='Total costs of owning')
@@ -77,7 +79,7 @@ def get_chart_graphic(p: PropertyData, r: PersonalFinanceData, graphic_format: s
     return image
 
 
-def display_charts(p_data: [PropertyData], r_data: PersonalFinanceData):
+def display_charts(p_data: [PropertyData], r_data: PersonalFinanceData, solicitor_costs=2000):
     total = len(p_data)
     charts_per_page = 5
     page = 1
@@ -87,7 +89,8 @@ def display_charts(p_data: [PropertyData], r_data: PersonalFinanceData):
     plt.show()
 
     for p in p_data:
-        initial_loan = p.property_price - r_data.initial_savings + first_home_stamp_duty(p.property_price)
+        initial_loan = p.property_price - r_data.initial_savings + first_home_stamp_duty(p.property_price) + \
+                       solicitor_costs
         loan_over_years = list(range(initial_loan, 0, -(r_data.savings_per_year - p.owner_costs_per_year)))
         if loan_over_years[-1] > 0:
             loan_over_years.append(0)
@@ -98,6 +101,9 @@ def display_charts(p_data: [PropertyData], r_data: PersonalFinanceData):
 
         n_years = len(mortgage_over_years)
         years = range(0, n_years)
+        loan_over_years = [loan_over_years[l] + mortgage_over_years[l] for l in years]
+        # FIXME load over years should include interest paid on loan
+
 
         cost_of_renting = [r_data.renting_price_per_year for _ in years]
         savings_over_years = [r_data.initial_savings for _ in years]

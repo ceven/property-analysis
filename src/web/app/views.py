@@ -76,4 +76,6 @@ def compare(request, home_name):
             comparable_properties = models.get_comparable_properties(home_name)
             if comparable_properties:
                 context.update({'sold_properties': [comparable_properties]})
+        form = forms.PropertySoldForm()
+        context.update({'sold_property_form': form})
     return render(request, 'compare.html', context=context)
