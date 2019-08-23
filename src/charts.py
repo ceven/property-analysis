@@ -67,6 +67,9 @@ def get_chart_graphic(p: PropertyData, r: PersonalFinanceData, graphic_format: s
     fig.text(0.1, 0.1, "Property price: {}\nOwner costs/year: {}".format(p.property_price,
                                                                          p.owner_costs_per_year))
 
+    # Text area
+    fig.text(0.6, 0.1, "Rent/week: {}".format(r.rent_week))
+
     # Save figure to graphic
     buffer = BytesIO()
     fig.savefig(buffer, format=graphic_format, bbox_inches='tight')

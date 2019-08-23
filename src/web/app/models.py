@@ -24,6 +24,10 @@ def get_property_by_name(home_name: str) -> typing.Dict:
     return firebasemiddleware.get_property(home_name)
 
 
+def get_financial_data() -> typing.Dict:
+    return firebasemiddleware.get_all_financial_data()
+
+
 def import_csv_properties(file_path: str) -> bool:
     success = firebasemiddleware.save_csv_data(file_path, None)
     if success:

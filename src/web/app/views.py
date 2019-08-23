@@ -35,7 +35,8 @@ def get_property(request, home_name):
     p = models.get_property_by_name(home_name)
     if p is None:
         raise Http404
-    context = {'home': p}
+    pd, rd = models.get_property_and_rent_by_name_json(home_name)
+    context = {'home': p, 'chart': charts.get_chart_graphic(pd, rd)}
     return render(request, 'property_page.html', context=context)
 
 
