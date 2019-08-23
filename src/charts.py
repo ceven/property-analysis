@@ -19,18 +19,19 @@ def get_chart_graphic(p: PropertyData, r: PersonalFinanceData, graphic_format: s
 
     mortgage_over_years_with_other_outgoings = [int(yearly_interest + p.owner_costs_per_year)]
 
-    cost_of_renting = [r.renting_price_per_year - r.savings_rate_net*r.initial_savings]
+    cost_of_renting = [r.renting_price_per_year - r.savings_rate_net * r.initial_savings]
     savings_over_years = [r.initial_savings]
     year = 0
     while loan_over_years[year] > 0:
-        loan_at_new_year_start = max(0, loan_over_years[year] + mortgage_over_years_with_other_outgoings[year] - r.savings_per_year)
+        loan_at_new_year_start = max(0, loan_over_years[year] + mortgage_over_years_with_other_outgoings[
+            year] - r.savings_per_year)
         loan_over_years.append(loan_at_new_year_start)
         loan_interest_year = int(r.loan_interest_rate * loan_at_new_year_start)
         mortgage_over_years.append(loan_interest_year)
         mortgage_over_years_with_other_outgoings.append(loan_interest_year + p.owner_costs_per_year)
 
         savings_over_years.append(savings_over_years[year] + r.savings_per_year - cost_of_renting[year])
-        savings_interest_year = r.savings_rate_net * savings_over_years[year+1]
+        savings_interest_year = r.savings_rate_net * savings_over_years[year + 1]
         cost_of_renting.append(r.renting_price_per_year - savings_interest_year)
 
         year += 1
@@ -105,8 +106,6 @@ def display_charts(p_data: [PropertyData], r_data: PersonalFinanceData, solicito
         n_years = len(mortgage_over_years)
         years = range(0, n_years)
         loan_over_years = [loan_over_years[l] + mortgage_over_years[l] for l in years]
-        # FIXME load over years should include interest paid on loan
-
 
         cost_of_renting = [r_data.renting_price_per_year for _ in years]
         savings_over_years = [r_data.initial_savings for _ in years]
