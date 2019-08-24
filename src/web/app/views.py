@@ -40,6 +40,12 @@ def get_property(request, home_name):
     return render(request, 'property_page.html', context=context)
 
 
+def delete_property(request, home_name):
+    if request.method == 'POST':
+        models.delete_property_by_name(home_name)
+    return redirect('/')
+
+
 def upload(request):
     context = {}
     if request.method == 'POST':

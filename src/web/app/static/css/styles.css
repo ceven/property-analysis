@@ -3,3 +3,31 @@
     padding: 0;
     list-style: none;
 }
+
+.button-delete {
+    background-color: blue;
+    color: white;
+}
+
+.all_graphs {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.single_graph {
+    padding: 5px;
+    min-width: 600px;
+    width: 35%;
+    margin: 2px;
+    align-items: center;
+}
+
+#home_name_delete,
+#home_name_delete > * {
+  display: flex;
+  /* align-items in one row */
+  flex-direction: row;
+  /* add horizontal centering */
+  align-items: center;
+  margin: 2px;
+}

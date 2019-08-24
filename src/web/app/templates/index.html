@@ -6,14 +6,25 @@
   <p>The following properties are available to compare:</p>
   <ul>
     {% for h in homes %}
-    <li> <a href="/property/details/{{h.home_name}}">{{ h.home_name }}</a></li>
+    <li>
+      <div id="home_name_delete">
+        <a href="/property/details/{{h.home_name}}">{{ h.home_name }}</a>
+          <form action="{% url 'delete_property' home_name=h.home_name %}" method="POST">
+            {% csrf_token %}
+            <input id="button-delete" class="btn btn-danger btn-sm" type="submit" value="Remove"/>
+          </form>
+      </div>
     {% endfor %}
   </ul>
   <p>Add more properties <a href="/property/upload">here</a>.</p>
   <h1>Graphs</h1>
+  <div class="all_graphs">
   {% for g in graphs %}
-    <a href="/property/details/{{g.home_name}}/graph">
-      <img src="data:image/png;base64,{{ g.image_png_base64 }}" alt="Click here"></a>
+    <div class="single_graph">
+      <a href="/property/details/{{g.home_name}}/graph">
+        <img src="data:image/png;base64,{{ g.image_png_base64 }}" alt="Click here"></a>
+    </div>
   {% endfor %}
+  </div>
 
 {% endblock %}

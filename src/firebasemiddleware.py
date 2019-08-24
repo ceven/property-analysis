@@ -17,6 +17,7 @@ users_loc = db.reference('users')
 
 DEFAULT_USER_ID = "1"
 
+
 def check_rights() -> None:
     ref = db.reference('restricted_access/secret_document')
     print(ref.get())
@@ -41,6 +42,10 @@ def add_perso_financial_data(f: PersonalFinanceData, user_id: str = DEFAULT_USER
 
 def get_property(prop_name: str, user_id: str = DEFAULT_USER_ID) -> typing.Dict:
     return users_loc.child(user_id).child("property").child(prop_name).get()
+
+
+def delete_property(prop_name: str, user_id: str = DEFAULT_USER_ID) -> None:
+    users_loc.child(user_id).child("property").child(prop_name).delete()
 
 
 def get_all_properties(user_id: str = DEFAULT_USER_ID) -> typing.Dict:

@@ -24,6 +24,10 @@ def get_property_by_name(home_name: str) -> typing.Dict:
     return firebasemiddleware.get_property(home_name)
 
 
+def delete_property_by_name(home_name):
+    return firebasemiddleware.delete_property(home_name)
+
+
 def get_financial_data() -> typing.Dict:
     return firebasemiddleware.get_perso_financial_data()
 
