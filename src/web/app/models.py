@@ -25,7 +25,7 @@ def get_property_by_name(home_name: str) -> typing.Dict:
 
 
 def get_financial_data() -> typing.Dict:
-    return firebasemiddleware.get_all_financial_data()
+    return firebasemiddleware.get_perso_financial_data()
 
 
 def import_csv_properties(file_path: str) -> bool:

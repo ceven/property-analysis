@@ -12,52 +12,47 @@ from data import PropertyData, PersonalFinanceData
 
 cred = credentials.Certificate("./private/firebase-key.json")
 app = firebase_admin.initialize_app(cred, {'databaseURL': 'https://property-analysis-dccc1.firebaseio.com'})
-property_loc = db.reference('property')
-property_own_loc = property_loc.child('own')
-perso_data_loc = property_loc.child('financial')
+users_loc = db.reference('users')
+# property_loc = db.reference('property')
 
+DEFAULT_USER_ID = "1"
 
 def check_rights() -> None:
     ref = db.reference('restricted_access/secret_document')
     print(ref.get())
 
 
-def add_property(prop: PropertyData) -> bool:
+def add_property(prop: PropertyData, user_id: str = DEFAULT_USER_ID) -> bool:
     try:
         prop_str = json.dumps(prop.__dict__, default=json_data_converter)
         json_prop = json.loads(prop_str)
-        property_own_loc.child(prop.home_name).set(json_prop)
+        users_loc.child(user_id).child("property").child(prop.home_name).set(json_prop)
         return True
     except Exception as e:
         print("Could not save property", e)
         return False
 
 
-def add_perso_financial_data(f: PersonalFinanceData) -> None:
+def add_perso_financial_data(f: PersonalFinanceData, user_id: str = DEFAULT_USER_ID) -> None:
     perso_data = json.dumps(f.__dict__, default=json_data_converter)
     perso_data_json = json.loads(perso_data)
-    perso_data_loc.child(f.home_name).set(perso_data_json)
+    users_loc.child(user_id).child(f.home_name).set(perso_data_json)
 
 
-def get_property(prop_name: str) -> typing.Dict:
-    return property_own_loc.child(prop_name).get()
+def get_property(prop_name: str, user_id: str = DEFAULT_USER_ID) -> typing.Dict:
+    return users_loc.child(user_id).child("property").child(prop_name).get()
 
 
-def get_all_properties() -> typing.Dict:
-    return property_own_loc.get()
+def get_all_properties(user_id: str = DEFAULT_USER_ID) -> typing.Dict:
+    return users_loc.child(user_id).child("property").get()
 
 
-def get_all_financial_data() -> typing.Dict:
-    return perso_data_loc.get()
+def get_perso_financial_data(user_id: str = DEFAULT_USER_ID) -> typing.Dict:
+    return users_loc.child(user_id).child("financial").get()
 
 
-def get_perso_financial_data() -> typing.Dict:
-    data = get_all_financial_data()
-    return data if len(data) == 0 else data.popitem()[1]
-
-
-def get_all_properties_json() -> (typing.Dict, typing.Dict):
-    return get_all_properties(), get_perso_financial_data()
+def get_user_data(user_id: str = DEFAULT_USER_ID) -> (typing.Dict, typing.Dict):
+    return get_all_properties(user_id), get_perso_financial_data(user_id)
 
 
 def convert_to_property_data(d: typing.Dict) -> typing.Optional[PropertyData]:
@@ -82,7 +77,7 @@ def convert_to_perso_financial_data(d: typing.Dict) -> typing.Optional[PersonalF
 
 
 def get_all_properties_list() -> ([PropertyData], typing.Optional[PersonalFinanceData]):
-    all_props, perso_json = get_all_properties_json()
+    all_props, perso_json = get_user_data()
     property_data = [convert_to_property_data(v) for v in all_props.values()] if all_props else []
     perso_data = convert_to_perso_financial_data(perso_json) if perso_json else None
     return property_data, perso_data
@@ -93,10 +88,6 @@ def get_property_and_rent_by_name(home_name: str) -> \
     p = get_property(home_name)
     r = None if p is None else get_perso_financial_data()
     return convert_to_property_data(p), convert_to_perso_financial_data(r)
-
-
-# def _json_object_hook(d):
-#     return namedtuple('X', d.keys())(*d.values())
 
 
 def json_data_converter(o):
