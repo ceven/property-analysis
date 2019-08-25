@@ -3,19 +3,19 @@
 {% block content %}
     {% if msg == "fail" %}
         <div class="alert alert-danger">
-            Fail to register! Try again.
+            Fail to login! Try again.
         </div>
     {% endif %}
     {% if msg == "success" %}
         <div class="alert alert-success">
-            Successfully registered! Click <a href="/property">here</a> to compare properties.
+            Successfully logged in! Click <a href="/property">here</a> to compare properties.
         </div>
     {% endif %}
     {% if not msg or msg != "success" %}
         <form method="post" enctype="application/x-www-form-urlencoded">
             {% csrf_token %}
-            {{ registration_form }}
-            <input type="submit" class="btn btn-primary btn-sm" value="Register!">
+            {{ login_form }}
+            <input type="submit" class="btn btn-primary btn-sm" value="Login!">
         </form>
     {% endif %}
 {% endblock %}

@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from firebase_admin import auth
 
 import charts
-from firebaseauthmiddleware import get_user, register_user
+from firebaseauthmiddleware import get_user, register_user, login_user
 from . import forms
 from . import models
 
@@ -109,3 +109,22 @@ def register(request):
         form = forms.UserRegisterForm()
         context.update({'registration_form': form})
     return render(request, 'register.html', context=context)
+
+
+def login(request):
+    context = {'msg': ''}
+    if request.method == 'POST':
+        user_form = forms.LoginForm(request.POST)
+        if user_form.is_valid():
+            user_form = user_form.cleaned_data
+            user = login_user(user_email=user_form['user_email'], user_password=user_form['user_password'])
+            if user is None:
+                context.update({'msg': 'fail'})
+            else:
+                context.update({'msg': 'success'})
+        else:
+            context.update({'msg': 'fail'})
+    if context['msg'] != 'success':
+        form = forms.LoginForm()
+        context.update({'login_form': form})
+    return render(request, 'login.html', context=context)

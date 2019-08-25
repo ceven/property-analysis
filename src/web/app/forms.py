@@ -16,3 +16,8 @@ class PropertySoldForm(PropertyForm):
 class UserRegisterForm(forms.Form):
     user_email = forms.EmailField()
     user_password = forms.CharField(min_length=6, max_length=32, widget=forms.PasswordInput)
+
+
+class LoginForm(forms.Form):
+    user_email = forms.EmailField()
+    user_password = forms.CharField(min_length=6, max_length=32, widget=forms.PasswordInput)

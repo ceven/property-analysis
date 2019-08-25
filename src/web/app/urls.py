@@ -11,4 +11,5 @@ urlpatterns = [
     path('upload', views.upload, name='upload'),
     path('compare/<home_name>', views.compare, name='compare'),
     path('register', views.register, name='register'),
+    path('login', views.login, name='login'),
 ]
