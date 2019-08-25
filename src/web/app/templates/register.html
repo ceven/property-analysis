@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if msg == "fail" %}
+        <div class="alert alert-danger">
+            Fail to register! Try again.
+        </div>
+    {% endif %}
+    {% if msg == "success" %}
+        <div class="alert alert-success">
+            Successfully registered! Click <a href="/property/login">here</a> to login.
+        </div>
+    {% endif %}
+    {% if not msg or msg != "success" %}
+        <form method="post" enctype="application/x-www-form-urlencoded">
+            {% csrf_token %}
+            {{ registration_form }}
+            <input type="submit" class="btn btn-primary btn-sm" value="Register!">
+        </form>
+    {% endif %}
+{% endblock %}

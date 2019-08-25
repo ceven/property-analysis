@@ -1,59 +1,52 @@
 import json
 import typing
 
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
+from firebase_admin.db import Reference
 from numpy import int64
 
-import data
-from charts import load_data
-from data import PropertyData, PersonalFinanceData
-
-cred = credentials.Certificate("./private/firebase-key.json")
-app = firebase_admin.initialize_app(cred, {'databaseURL': 'https://property-analysis-dccc1.firebaseio.com'})
-users_loc = db.reference('users')
-# property_loc = db.reference('property')
-
-DEFAULT_USER_ID = "1"
+from data import load_data, PropertyData, PersonalFinanceData, PropertySoldData
+from firebasedb import users_financial, users_property, DEFAULT_USER_ID
 
 
-def check_rights() -> None:
-    ref = db.reference('restricted_access/secret_document')
-    print(ref.get())
+def get_user_property_path(user_id: str = DEFAULT_USER_ID) -> Reference:
+    return users_property.child(user_id).child("property")
+
+
+def get_user_financial_path(user_id: str = DEFAULT_USER_ID) -> Reference:
+    return users_financial.child(user_id).child("financial")
 
 
 def add_property(prop: PropertyData, user_id: str = DEFAULT_USER_ID) -> bool:
     try:
         prop_str = json.dumps(prop.__dict__, default=json_data_converter)
         json_prop = json.loads(prop_str)
-        users_loc.child(user_id).child("property").child(prop.home_name).set(json_prop)
+        get_user_property_path(user_id).child(prop.home_name).set(json_prop)
         return True
     except Exception as e:
         print("Could not save property", e)
         return False
 
 
-def add_perso_financial_data(f: PersonalFinanceData, user_id: str = DEFAULT_USER_ID) -> None:
-    perso_data = json.dumps(f.__dict__, default=json_data_converter)
-    perso_data_json = json.loads(perso_data)
-    users_loc.child(user_id).child(f.home_name).set(perso_data_json)
-
-
 def get_property(prop_name: str, user_id: str = DEFAULT_USER_ID) -> typing.Dict:
-    return users_loc.child(user_id).child("property").child(prop_name).get()
+    return get_user_property_path(user_id).child(prop_name).get()
 
 
 def delete_property(prop_name: str, user_id: str = DEFAULT_USER_ID) -> None:
-    users_loc.child(user_id).child("property").child(prop_name).delete()
+    get_user_property_path(user_id).child(prop_name).delete()
 
 
 def get_all_properties(user_id: str = DEFAULT_USER_ID) -> typing.Dict:
-    return users_loc.child(user_id).child("property").get()
+    return get_user_property_path(user_id).get()
+
+
+def add_perso_financial_data(f: PersonalFinanceData, user_id: str = DEFAULT_USER_ID) -> None:
+    perso_data = json.dumps(f.__dict__, default=json_data_converter)
+    perso_data_json = json.loads(perso_data)
+    get_user_financial_path(user_id).set(perso_data_json)
 
 
 def get_perso_financial_data(user_id: str = DEFAULT_USER_ID) -> typing.Dict:
-    return users_loc.child(user_id).child("financial").get()
+    return get_user_financial_path(user_id).get()
 
 
 def get_user_data(user_id: str = DEFAULT_USER_ID) -> (typing.Dict, typing.Dict):
@@ -104,8 +97,9 @@ def save_csv_data(property_file_name: str, perso_financial_data: str) -> bool:
     try:
         p_data, r_data = load_data(property_file_name, perso_financial_data)
 
-        for p in p_data:
-            add_property(p)
+        if p_data:
+            for p in p_data:
+                add_property(p)
         if r_data:
             add_perso_financial_data(r_data)
         return True
@@ -115,7 +109,7 @@ def save_csv_data(property_file_name: str, perso_financial_data: str) -> bool:
 
 
 def save_sample_data() -> None:
-    save_csv_data('./data/financial_data.csv')
+    save_csv_data(property_file_name=None, perso_financial_data='./data/my_finances.csv')
 
 
 if __name__ == '__main__':
@@ -126,5 +120,5 @@ if __name__ == '__main__':
     # display_charts(i, j)
 
 
-def add_comparable_property(home_name: str, comparable_home: data.PropertySoldData):
+def add_comparable_property(home_name: str, comparable_home: PropertySoldData):
     return None

@@ -11,3 +11,8 @@ class PropertyForm(forms.Form):
 
 class PropertySoldForm(PropertyForm):
     sold_price = forms.IntegerField(label="Sold price", min_value=0)
+
+
+class UserRegisterForm(forms.Form):
+    user_email = forms.EmailField()
+    user_password = forms.CharField(min_length=6, max_length=32, widget=forms.PasswordInput)

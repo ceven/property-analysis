@@ -86,7 +86,9 @@ def load_data(property_file_path: str, finance_file_path: str) -> ([], object):
                                             savings_interest_rate=data_frame['savings_interest_rate'][0],
                                             loan_interest_rate=data_frame['loan_interest_rate'][0])
 
-    property_data = get_property_data(property_file_path) if property_file_path else None
+    property_data = None
+    if property_file_path:
+        property_data = get_property_data(property_file_path)
     return property_data, perso_finance
 
 

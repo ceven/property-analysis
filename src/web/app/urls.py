@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'details/(?P<home_name>.*)/delete', views.delete_property, name='delete_property'),
     path('upload', views.upload, name='upload'),
     path('compare/<home_name>', views.compare, name='compare'),
+    path('register', views.register, name='register'),
 ]

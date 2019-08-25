@@ -1,10 +1,13 @@
 from collections import namedtuple
 
+from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
+from firebase_admin import auth
 
 import charts
+from firebaseauthmiddleware import get_user, register_user
 from . import forms
 from . import models
 
@@ -86,3 +89,23 @@ def compare(request, home_name):
         form = forms.PropertySoldForm()
         context.update({'sold_property_form': form})
     return render(request, 'compare.html', context=context)
+
+
+def register(request):
+    context = {'msg': ''}
+    if request.method == 'POST':
+        user_form = forms.UserRegisterForm(request.POST)
+        if user_form.is_valid():
+            user_form = user_form.cleaned_data
+            user = get_user(user_email=user_form['user_email'])
+            if user is None:
+                register_user(user_email=user_form['user_email'], user_password=user_form['user_password'])
+                context.update({'msg': 'success'})
+            else:
+                context.update({'msg': 'fail'})
+        else:
+            context.update({'msg': 'fail'})
+    if context['msg'] != 'success':
+        form = forms.UserRegisterForm()
+        context.update({'registration_form': form})
+    return render(request, 'register.html', context=context)
