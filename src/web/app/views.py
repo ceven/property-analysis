@@ -1,13 +1,11 @@
 from collections import namedtuple
 
-from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
-from firebase_admin import auth
 
 import charts
-from firebaseauthmiddleware import get_user, register_user, login_user
+from firebaseauthmiddleware import get_user, register_user, login_user, check_authenticated
 from . import forms
 from . import models
 
@@ -20,6 +18,9 @@ Graph = namedtuple('Graph', 'home_name image_png_base64')
 
 # Create your views here.
 def index(request):
+    auth_check = check_authenticated(request.session)
+    if not auth_check:
+        return redirect_login_view()  # FIXME add redirect URL for successful login
     p_data, r_data = models.get_all_properties()
     graphs = [Graph(home_name=p.home_name, image_png_base64=charts.get_chart_graphic(p, r_data)) for p in p_data]
     context = {'graphs': graphs, 'homes': p_data}
@@ -27,6 +28,9 @@ def index(request):
 
 
 def render_svg_img(request, home_name):
+    auth_check = check_authenticated(request.session)
+    if not auth_check:
+        return redirect_login_view()  # FIXME add redirect URL for successful login
     p, r = models.get_property_and_rent_by_name_json(home_name)
     if p is None:
         raise Http404  # FIXME need custom user friendly view
@@ -35,6 +39,9 @@ def render_svg_img(request, home_name):
 
 
 def get_property(request, home_name):
+    auth_check = check_authenticated(request.session)
+    if not auth_check:
+        return redirect_login_view()  # FIXME add redirect URL for successful login
     p = models.get_property_by_name(home_name)
     if p is None:
         raise Http404
@@ -44,12 +51,18 @@ def get_property(request, home_name):
 
 
 def delete_property(request, home_name):
+    auth_check = check_authenticated(request.session)
+    if not auth_check:
+        return redirect_login_view()  # FIXME add redirect URL for successful login
     if request.method == 'POST':
         models.delete_property_by_name(home_name)
     return redirect('/')
 
 
 def upload(request):
+    auth_check = check_authenticated(request.session)
+    if not auth_check:
+        return redirect_login_view()  # FIXME add redirect URL for successful login
     context = {}
     if request.method == 'POST':
         if request.FILES and request.FILES['csvpropertiesfile']:
@@ -72,6 +85,9 @@ def upload(request):
 
 
 def compare(request, home_name):
+    auth_check = check_authenticated(request.session)
+    if not auth_check:
+        return redirect_login_view()  # FIXME add redirect URL for successful login
     context = {}
     if request.method == 'POST':
         property_sold_form = forms.PropertySoldForm(request.POST)
@@ -117,10 +133,16 @@ def login(request):
         user_form = forms.LoginForm(request.POST)
         if user_form.is_valid():
             user_form = user_form.cleaned_data
-            user = login_user(user_email=user_form['user_email'], user_password=user_form['user_password'])
-            if user is None:
+            json_resp = login_user(user_email=user_form['user_email'], user_password=user_form['user_password'])
+            if json_resp is None:
                 context.update({'msg': 'fail'})
             else:
+                local_id = json_resp['localId']
+                token = json_resp['idToken']
+                refresh_token = json_resp['refreshToken']
+                request.session['token'] = token
+                request.session['refresh_token'] = refresh_token
+                request.session['local_id'] = local_id
                 context.update({'msg': 'success'})
         else:
             context.update({'msg': 'fail'})
@@ -128,3 +150,7 @@ def login(request):
         form = forms.LoginForm()
         context.update({'login_form': form})
     return render(request, 'login.html', context=context)
+
+
+def redirect_login_view():
+    return redirect('/property/login')

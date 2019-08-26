@@ -12,10 +12,12 @@
         </div>
     {% endif %}
     {% if not msg or msg != "success" %}
+        <h5>Enter details to register:</h5>
         <form method="post" enctype="application/x-www-form-urlencoded">
             {% csrf_token %}
             {{ registration_form }}
             <input type="submit" class="btn btn-primary btn-sm" value="Register!">
         </form>
+        <p>Already have an account? <a href="/property/login">Log in instead</a></p>
     {% endif %}
 {% endblock %}
