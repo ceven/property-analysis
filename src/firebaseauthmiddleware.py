@@ -1,5 +1,9 @@
+import functools
 from typing import Optional, Any
 
+import typing
+
+from django.shortcuts import redirect
 from firebase_admin import auth
 from firebase_admin.auth import UserRecord
 
@@ -16,15 +20,26 @@ def get_user(user_email: str) -> Optional[UserRecord]:
         return None
 
 
-def check_authenticated(session) -> bool:
-    if not session or 'token' not in session:
-        return False
-    try:
-        check = auth.verify_id_token(id_token=session['token'], check_revoked=True)
-        return True
-    except Exception as e:
-        print(e)
-        return False
+def check_authenticated(function):
+    @functools.wraps(function)
+    def wrapper(request, *args, **kwargs):
+        sess = request.session
+        ok = False
+        if sess and 'token' in sess and 'local_id' in sess:
+            try:
+                decoded_token = auth.verify_id_token(id_token=sess['token'], check_revoked=True)
+                uid = decoded_token['uid']
+                ok = (uid == sess['local_id'])
+            except Exception as e:
+                print(e)
+        if not ok:
+            return redirect_login_view()
+        return function(request, *args, **kwargs)
+    return wrapper
+
+
+def redirect_login_view():
+    return redirect('/property/login')
 
 
 def check_authorised():

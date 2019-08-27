@@ -16,21 +16,16 @@ Graph = namedtuple('Graph', 'home_name image_png_base64')
 # TODO implement 'compare' function between property of interest and similar sales
 # TODO implement ability to 'mark sold' property
 
-# Create your views here.
+@check_authenticated
 def index(request):
-    auth_check = check_authenticated(request.session)
-    if not auth_check:
-        return redirect_login_view()  # FIXME add redirect URL for successful login
     p_data, r_data = models.get_all_properties()
     graphs = [Graph(home_name=p.home_name, image_png_base64=charts.get_chart_graphic(p, r_data)) for p in p_data]
     context = {'graphs': graphs, 'homes': p_data}
     return render(request, 'index.html', context=context)  # TODO try to render image as svg instead of png
 
 
+@check_authenticated
 def render_svg_img(request, home_name):
-    auth_check = check_authenticated(request.session)
-    if not auth_check:
-        return redirect_login_view()  # FIXME add redirect URL for successful login
     p, r = models.get_property_and_rent_by_name_json(home_name)
     if p is None:
         raise Http404  # FIXME need custom user friendly view
@@ -38,10 +33,8 @@ def render_svg_img(request, home_name):
     return HttpResponse(graphic, content_type='image/svg+xml')
 
 
+@check_authenticated
 def get_property(request, home_name):
-    auth_check = check_authenticated(request.session)
-    if not auth_check:
-        return redirect_login_view()  # FIXME add redirect URL for successful login
     p = models.get_property_by_name(home_name)
     if p is None:
         raise Http404
@@ -50,19 +43,15 @@ def get_property(request, home_name):
     return render(request, 'property_page.html', context=context)
 
 
+@check_authenticated
 def delete_property(request, home_name):
-    auth_check = check_authenticated(request.session)
-    if not auth_check:
-        return redirect_login_view()  # FIXME add redirect URL for successful login
     if request.method == 'POST':
         models.delete_property_by_name(home_name)
     return redirect('/')
 
 
+@check_authenticated
 def upload(request):
-    auth_check = check_authenticated(request.session)
-    if not auth_check:
-        return redirect_login_view()  # FIXME add redirect URL for successful login
     context = {}
     if request.method == 'POST':
         if request.FILES and request.FILES['csvpropertiesfile']:
@@ -84,10 +73,8 @@ def upload(request):
     return render(request, 'upload_properties.html', context=context)
 
 
+@check_authenticated
 def compare(request, home_name):
-    auth_check = check_authenticated(request.session)
-    if not auth_check:
-        return redirect_login_view()  # FIXME add redirect URL for successful login
     context = {}
     if request.method == 'POST':
         property_sold_form = forms.PropertySoldForm(request.POST)
@@ -150,7 +137,3 @@ def login(request):
         form = forms.LoginForm()
         context.update({'login_form': form})
     return render(request, 'login.html', context=context)
-
-
-def redirect_login_view():
-    return redirect('/property/login')
