@@ -168,6 +168,6 @@ def display_charts(p_data: [PropertyData], r_data: PersonalFinanceData, solicito
 if __name__ == '__main__':
     # pd, rd = load_data('./data/financial_property_data_sold.csv', './data/my_finances.csv')
     # firebasemiddleware.save_csv_data('./data/financial_property_data_sold.csv', './data/my_finances.csv')
-    pd, rd = firebasemiddleware.get_all_properties_list()
+    pd, rd = firebasemiddleware.get_all_properties_list(user_id)
     display_charts(pd, rd)
     print("Done")

@@ -74,17 +74,17 @@ def convert_to_perso_financial_data(d: typing.Dict) -> typing.Optional[PersonalF
                                savings_interest_rate=d['savings_rate_brut'])
 
 
-def get_all_properties_list() -> ([PropertyData], typing.Optional[PersonalFinanceData]):
-    all_props, perso_json = get_user_data()
+def get_all_properties_list(user_id: str) -> ([PropertyData], typing.Optional[PersonalFinanceData]):
+    all_props, perso_json = get_user_data(user_id)
     property_data = [convert_to_property_data(v) for v in all_props.values()] if all_props else []
     perso_data = convert_to_perso_financial_data(perso_json) if perso_json else None
     return property_data, perso_data
 
 
-def get_property_and_rent_by_name(home_name: str) -> \
+def get_property_and_rent_by_name(home_name: str, user_id: str) -> \
         (typing.Optional[PropertyData], typing.Optional[PersonalFinanceData]):
-    p = get_property(home_name)
-    r = None if p is None else get_perso_financial_data()
+    p = get_property(home_name, user_id)
+    r = None if p is None else get_perso_financial_data(user_id)
     return convert_to_property_data(p), convert_to_perso_financial_data(r)
 
 
@@ -93,23 +93,27 @@ def json_data_converter(o):
         return int(o)
 
 
-def save_csv_data(property_file_name: str, perso_financial_data: str) -> bool:
+def save_csv_data(property_file_name: str, perso_financial_data: str, user_id: str) -> bool:
     try:
         p_data, r_data = load_data(property_file_name, perso_financial_data)
 
         if p_data:
             for p in p_data:
-                add_property(p)
+                add_property(p, user_id)
         if r_data:
-            add_perso_financial_data(r_data)
+            add_perso_financial_data(r_data, user_id)
         return True
     except Exception as e:
         print("Error", e)
         return False
 
 
+def save_perso_financial_data(perso_financial_data: str, user_id: str):
+    return save_csv_data(property_file_name=None, perso_financial_data=perso_financial_data, user_id=user_id)
+
+
 def save_sample_data() -> None:
-    save_csv_data(property_file_name=None, perso_financial_data='./data/my_finances.csv')
+    save_perso_financial_data(perso_financial_data='./data/dummy_finances.csv', user_id='ox5GoxNq6ogha4mb9jxT04CZRwe2')
 
 
 if __name__ == '__main__':

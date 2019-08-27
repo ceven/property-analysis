@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+import typing
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
@@ -18,7 +19,7 @@ Graph = namedtuple('Graph', 'home_name image_png_base64')
 
 @check_authenticated
 def index(request):
-    p_data, r_data = models.get_all_properties()
+    p_data, r_data = models.get_all_properties(get_uid(request.session))
     graphs = [Graph(home_name=p.home_name, image_png_base64=charts.get_chart_graphic(p, r_data)) for p in p_data]
     context = {'graphs': graphs, 'homes': p_data}
     return render(request, 'index.html', context=context)  # TODO try to render image as svg instead of png
@@ -26,7 +27,7 @@ def index(request):
 
 @check_authenticated
 def render_svg_img(request, home_name):
-    p, r = models.get_property_and_rent_by_name_json(home_name)
+    p, r = models.get_property_and_rent_by_name_json(home_name, get_uid(request.session))
     if p is None:
         raise Http404  # FIXME need custom user friendly view
     graphic = charts.get_chart_graphic(p, r, 'svg')
@@ -35,10 +36,10 @@ def render_svg_img(request, home_name):
 
 @check_authenticated
 def get_property(request, home_name):
-    p = models.get_property_by_name(home_name)
+    p = models.get_property_by_name(home_name, get_uid(request.session))
     if p is None:
         raise Http404
-    pd, rd = models.get_property_and_rent_by_name_json(home_name)
+    pd, rd = models.get_property_and_rent_by_name_json(home_name, get_uid(request.session))
     context = {'home': p, 'chart': charts.get_chart_graphic(pd, rd)}
     return render(request, 'property_page.html', context=context)
 
@@ -46,7 +47,7 @@ def get_property(request, home_name):
 @check_authenticated
 def delete_property(request, home_name):
     if request.method == 'POST':
-        models.delete_property_by_name(home_name)
+        models.delete_property_by_name(home_name, get_uid(request.session))
     return redirect('/')
 
 
@@ -58,12 +59,12 @@ def upload(request):
             file = request.FILES['csvpropertiesfile']
             fs = FileSystemStorage()
             filename = fs.save(file.name, file)
-            models.import_csv_properties(fs.path(filename))
+            models.import_csv_properties(fs.path(filename), get_uid(request.session))
             context.update({'success': True})
         else:
             form = forms.PropertyForm(request.POST)
             if form.is_valid():
-                success = models.import_property(form)
+                success = models.import_property(form, get_uid(request.session))
                 if success:
                     return redirect('/property/details/' + form.cleaned_data['home_name'])
             context.update({'success': False})
@@ -83,7 +84,7 @@ def compare(request, home_name):
             if imported:
                 context.update({'sold_properties': [imported]})  # FIXME append to
     else:
-        p = models.get_property_by_name(home_name)
+        p = models.get_property_by_name(home_name, get_uid(request.session))
         if p is not None:
             context.update({'home': p})
             comparable_properties = models.get_comparable_properties(home_name)
@@ -102,7 +103,10 @@ def register(request):
             user_form = user_form.cleaned_data
             user = get_user(user_email=user_form['user_email'])
             if user is None:
-                register_user(user_email=user_form['user_email'], user_password=user_form['user_password'])
+                user_record = register_user(user_email=user_form['user_email'], user_password=user_form[
+                    'user_password'])
+                models.create_dummy_financial_data(user_record.uid)  # Create dummy financial data to start with
+                # TODO potentially save session so no need to login afterwards
                 context.update({'msg': 'success'})
             else:
                 context.update({'msg': 'fail'})
@@ -115,6 +119,7 @@ def register(request):
 
 
 def login(request):
+    # TODO ask to logout if already logged in
     context = {'msg': ''}
     if request.method == 'POST':
         user_form = forms.LoginForm(request.POST)
@@ -137,3 +142,7 @@ def login(request):
         form = forms.LoginForm()
         context.update({'login_form': form})
     return render(request, 'login.html', context=context)
+
+
+def get_uid(session: typing.Dict) -> str:
+    return session['local_id']

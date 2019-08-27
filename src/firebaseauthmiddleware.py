@@ -46,8 +46,8 @@ def check_authorised():
     return True  # FIXME authorisation to access resources ; user id should prefix resource!
 
 
-def register_user(user_email: str, user_password: str):
-    auth.create_user(email=user_email, password=user_password)
+def register_user(user_email: str, user_password: str) -> UserRecord:
+    return auth.create_user(email=user_email, password=user_password)
 
 
 def login_user(user_email: str, user_password: str) -> Any:
