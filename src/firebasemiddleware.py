@@ -45,7 +45,7 @@ def add_perso_financial_data(f: PersonalFinanceData, user_id: str = DEFAULT_USER
     get_user_financial_path(user_id).set(perso_data_json)
 
 
-def get_perso_financial_data(user_id: str = DEFAULT_USER_ID) -> typing.Dict:
+def get_perso_financial_data(user_id: str) -> typing.Dict:
     return get_user_financial_path(user_id).get()
 
 

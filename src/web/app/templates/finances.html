@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if msg == "fail" %}
+        <div class="alert alert-danger">
+            Something wrong happened when getting or saving your financial data :( You may try again.
+        </div>
+    {% endif %}
+    {% if msg == "success" %}
+        <div class="alert alert-success">
+            Successfully saved data! Click <a href="/property">here</a> to compare properties.
+        </div>
+    {% endif %}
+    {% if finances %}
+        <p>
+          <h5>Your finances:</h5>
+          <ul>
+            {% for k, v in finances.items %}
+            <li>{{k}} - {{v}}</li> <!--TODO fix details to be more visually friendly-->
+            {% endfor %}
+          </ul>
+        </p>
+    {% endif %}
+    {% if not msg or msg != "success" %}
+        <p>
+          {% if finances %}
+              <h5>Update your financial data:</h5>
+          {% else %}
+            <h5>Enter your financial data:</h5>
+          {% endif %}
+          <form method="post" enctype="application/x-www-form-urlencoded">
+              {% csrf_token %}
+              {{ form }}
+              <input type="submit" class="btn btn-primary btn-sm" value="Save">
+          </form>
+        </p>
+    {% endif %}
+{% endblock %}

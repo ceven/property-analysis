@@ -146,3 +146,23 @@ def login(request):
 
 def get_uid(session: typing.Dict) -> str:
     return session['local_id']
+
+
+@check_authenticated
+def me_finances(request):
+    user_id = get_uid(request.session)
+    finance_data = models.get_financial_data(user_id)
+    context = {'msg': '', 'finances': finance_data}
+    if request.method == 'POST':
+        finances_form = forms.FinancesForm(request.POST)
+        if finances_form.is_valid():
+            finances_form = finances_form.cleaned_data
+            # TODO save data, merge with existing
+            context.update({'msg': 'success'})
+        else:
+            context.update({'msg': 'fail'})
+    if context['msg'] != 'success':
+        form = forms.FinancesForm()
+        form.update_form_fields_values(finance_data)
+        context.update({'form': form})
+    return render(request, 'finances.html', context=context)

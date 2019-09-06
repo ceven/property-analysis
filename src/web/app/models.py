@@ -27,8 +27,8 @@ def delete_property_by_name(home_name: str, user_id: str):
     return firebasemiddleware.delete_property(home_name, user_id)
 
 
-def get_financial_data() -> typing.Dict:
-    return firebasemiddleware.get_perso_financial_data()
+def get_financial_data(user_id: str) -> typing.Dict:
+    return firebasemiddleware.get_perso_financial_data(user_id)
 
 
 def import_csv_properties(file_path: str, user_id: str) -> bool:
