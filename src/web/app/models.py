@@ -4,6 +4,7 @@ import re
 import typing
 
 import data
+from data import PersonalFinanceData
 import firebasemiddleware
 from . import forms
 
@@ -49,6 +50,28 @@ def import_property(form: forms.PropertyForm, user_id: str) -> bool:
         council_q=form_data['council_q']
     )
     return firebasemiddleware.add_property(p_data, user_id)
+
+
+def merge_perso_financial_data(new_data: typing.Dict, original_data: typing.Optional[PersonalFinanceData]) -> \
+        typing.Optional[PersonalFinanceData]:
+    if not new_data and not original_data:
+        return None
+    return PersonalFinanceData(rent_week=new_data.get('rent_week', original_data.rent_week),
+                               salary_net_year=new_data.get('salaries_net_per_year',
+                                                            original_data.salaries_net_per_year),
+                               initial_savings=new_data.get('initial_savings', original_data.initial_savings),
+                               monthly_living_expenses=new_data.get('living_expenses',
+                                                                    original_data.living_expenses) / 12,
+                               savings_interest_rate=new_data.get('savings_rate_brut', original_data.savings_rate_brut))
+
+
+def import_financial_data(form: forms.FinancesForm, original_data: typing.Dict, user_id: str) -> bool:
+    form_data = form.cleaned_data
+    f_data = merge_perso_financial_data(form_data, firebasemiddleware.convert_to_perso_financial_data(original_data))
+    if f_data is not None:
+        firebasemiddleware.add_perso_financial_data(f_data, user_id)
+        return True
+    return False
 
 
 def import_comparable_property(home_name: str, property_sold_form: forms.PropertySoldForm):

@@ -25,12 +25,14 @@ class LoginForm(forms.Form):
 
 
 class FinancesForm(forms.Form):
-    salary_net_year = forms.IntegerField(label="Salary net/year", min_value=0)
-    expenses_year = forms.IntegerField(label="Living expenses/year", min_value=0)
-    # TODO add more fields
+    salaries_net_per_year = forms.IntegerField(label="Salary net/year", min_value=0)
+    living_expenses = forms.IntegerField(label="Living expenses/year", min_value=0)
+    rent_week = forms.IntegerField(label="Rent/week", min_value=0)
+    initial_savings = forms.IntegerField(label="Initial Savings", min_value=0)
 
     def update_form_fields_values(self, existing_finance_data: typing.Dict):
         if existing_finance_data and len(existing_finance_data) > 0:
-            self.fields['salary_net_year'].initial = existing_finance_data['salaries_net_per_year']
-            self.fields['expenses_year'].initial = existing_finance_data['living_expenses']
-            # TODO add more fields
+            self.fields['salaries_net_per_year'].initial = existing_finance_data.get('salaries_net_per_year', 0)
+            self.fields['living_expenses'].initial = existing_finance_data.get('living_expenses', 0)
+            self.fields['rent_week'].initial = existing_finance_data.get('rent_week', 0)
+            self.fields['initial_savings'].initial = existing_finance_data.get('initial_savings', 0)

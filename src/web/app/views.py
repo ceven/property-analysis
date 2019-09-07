@@ -156,9 +156,11 @@ def me_finances(request):
     if request.method == 'POST':
         finances_form = forms.FinancesForm(request.POST)
         if finances_form.is_valid():
-            finances_form = finances_form.cleaned_data
-            # TODO save data, merge with existing
-            context.update({'msg': 'success'})
+            if models.import_financial_data(finances_form, finance_data, user_id):
+                finance_data = models.get_financial_data(user_id)
+                context.update({'msg': 'success', 'finances': finance_data})
+            else:
+                context.update({'msg': 'fail'})
         else:
             context.update({'msg': 'fail'})
     if context['msg'] != 'success':

@@ -67,11 +67,11 @@ def convert_to_property_data(d: typing.Dict) -> typing.Optional[PropertyData]:
 def convert_to_perso_financial_data(d: typing.Dict) -> typing.Optional[PersonalFinanceData]:
     if not d:
         return None
-    return PersonalFinanceData(rent_week=d['rent_week'],
-                               salary_net_year=d['salaries_net_per_year'],
-                               initial_savings=d['initial_savings'],
-                               monthly_living_expenses=d['living_expenses'] / 12,
-                               savings_interest_rate=d['savings_rate_brut'])
+    return PersonalFinanceData(rent_week=d.get('rent_week'),
+                               salary_net_year=d.get('salaries_net_per_year'),
+                               initial_savings=d.get('initial_savings'),
+                               monthly_living_expenses=d.get('living_expenses') / 12,
+                               savings_interest_rate=d.get('savings_rate_brut'))
 
 
 def get_all_properties_list(user_id: str) -> ([PropertyData], typing.Optional[PersonalFinanceData]):
