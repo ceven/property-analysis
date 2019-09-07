@@ -2,6 +2,8 @@
 
 Find out how long it will take to repay your property, and whether you are better off buying or renting.
 
+Trello board: https://trello.com/b/EbmxI91G/property-analysis
+
 ### WARNING/DISCLAIMER
 
 This project is WIP (work in progress). Use the information or outputs you may extract from it at your very own risk.
