@@ -8,7 +8,8 @@ from data import PersonalFinanceData
 import firebasemiddleware
 from . import forms
 
-ALPHA_REGEX = re.compile('[^a-zA-Z0-9\\-_,~. ]')
+REPLACE_REGEX = re.compile('[/]')
+TRIM_REGEX = re.compile('[^a-zA-Z0-9\\-_,~. ]')
 
 
 def get_all_properties(user_id: str) -> ([data.PropertyData], data.PersonalFinanceData):
@@ -41,9 +42,11 @@ def import_csv_properties(file_path: str, user_id: str) -> bool:
 
 def import_property(form: forms.PropertyForm, user_id: str) -> bool:
     form_data = form.cleaned_data
-    form_data['home_name'] = ALPHA_REGEX.sub('', form_data['home_name'])
+    home_name = REPLACE_REGEX.sub(' ', form_data['home_name'])
+    home_name = TRIM_REGEX.sub('', home_name)
+    form_data['home_name'] = home_name
     p_data = data.PropertyData(
-        home_name=form_data['home_name'],
+        home_name=home_name,
         property_price=form_data['property_price'],
         strata_q=form_data['strata_q'],
         water_q=form_data['water_q'],
