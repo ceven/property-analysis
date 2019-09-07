@@ -8,7 +8,7 @@ class PropertyData:
 
     def __init__(self, property_price, strata_q: int = 1400, council_q: int = 300, water_q: int = 200,
                  home_name: str = BASELINE_HOME_NAME):
-        assert property_price
+        assert(property_price >= 0)
 
         # Name
         self.home_name = home_name

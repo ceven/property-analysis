@@ -8,7 +8,7 @@ from data import PersonalFinanceData
 import firebasemiddleware
 from . import forms
 
-ALPHA_REGEX = re.compile('[^a-zA-Z0-9]')
+ALPHA_REGEX = re.compile('[^a-zA-Z0-9\\-_,~. ]')
 
 
 def get_all_properties(user_id: str) -> ([data.PropertyData], data.PersonalFinanceData):
