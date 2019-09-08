@@ -1,6 +1,18 @@
 import typing
 
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+
+url_validator = URLValidator(schemes='https')
+
+
+def link_validator(link):
+    if link:
+        url_validator(link)
+        strip_link = link.strip('https://wwww.')
+        if not strip_link.startswith('domain.com.au/'):
+            raise ValidationError('%(l) is not a valid link', params={'l': link})
 
 
 class PropertyForm(forms.Form):
@@ -9,7 +21,8 @@ class PropertyForm(forms.Form):
     strata_q = forms.IntegerField(label="Strata/q", min_value=0)
     water_q = forms.IntegerField(label="Water/q", min_value=0)
     council_q = forms.IntegerField(label="Council/q", min_value=0)
-    domain_link = forms.CharField(label="Domain link", min_length=0, max_length=250, strip=True, required=False)
+    domain_link = forms.CharField(label="Domain link", min_length=0, max_length=250, strip=True, required=False,
+                                  validators=[link_validator])
 
     def update_form_fields_values(self, existing_property_data: typing.Dict):
         if existing_property_data and len(existing_property_data) > 0:
