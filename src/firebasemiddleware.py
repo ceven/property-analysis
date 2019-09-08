@@ -27,6 +27,17 @@ def add_property(prop: PropertyData, user_id: str = DEFAULT_USER_ID) -> bool:
         return False
 
 
+def update_property(home_name: str, data: typing.Dict, user_id: str) -> bool:
+    try:
+        prop_str = json.dumps(data, default=json_data_converter)
+        json_prop = json.loads(prop_str)
+        get_user_property_path(user_id).child(home_name).update(json_prop)
+        return True
+    except Exception as e:
+        print("Could not save property", e)
+        return False
+
+
 def get_property(prop_name: str, user_id: str = DEFAULT_USER_ID) -> typing.Dict:
     return get_user_property_path(user_id).child(prop_name).get()
 

@@ -1,15 +1,14 @@
 import os
 import re
-
 import typing
 
 import data
-from data import PersonalFinanceData
 import firebasemiddleware
+from data import PersonalFinanceData, PropertyData
 from . import forms
 
 REPLACE_REGEX = re.compile('[/]')
-TRIM_REGEX = re.compile('[^a-zA-Z0-9\\-_,~. ]')
+TRIM_REGEX = re.compile('[^a-zA-Z0-9\\-_,~ ]')
 
 
 def get_all_properties(user_id: str) -> ([data.PropertyData], data.PersonalFinanceData):
@@ -42,17 +41,43 @@ def import_csv_properties(file_path: str, user_id: str) -> bool:
 
 def import_property(form: forms.PropertyForm, user_id: str) -> bool:
     form_data = form.cleaned_data
-    home_name = REPLACE_REGEX.sub(' ', form_data['home_name'])
-    home_name = TRIM_REGEX.sub('', home_name)
-    form_data['home_name'] = home_name
+    form_data['home_name'] = clean_name(form_data['home_name'])
     p_data = data.PropertyData(
-        home_name=home_name,
+        home_name=form_data['home_name'],
         property_price=form_data['property_price'],
         strata_q=form_data['strata_q'],
         water_q=form_data['water_q'],
         council_q=form_data['council_q']
     )
     return firebasemiddleware.add_property(p_data, user_id)
+
+
+def clean_name(name: str):
+    home_name = REPLACE_REGEX.sub(' ', name)
+    home_name = TRIM_REGEX.sub('', home_name)
+    return home_name
+
+
+def update_property(form: forms.PropertyForm, original_data: typing.Optional[PropertyData], user_id: str) -> bool:
+    form_data = form.cleaned_data
+    form_data['home_name'] = clean_name(form_data['home_name'])
+    # TODO if home name changed, need to remove old data
+    p_data = merge_property_data(form_data, original_data)
+    success = firebasemiddleware.add_property(p_data, user_id) if p_data is not None else False
+    if success and original_data is not None and p_data.home_name != original_data.home_name:
+        firebasemiddleware.delete_property(original_data.home_name, user_id)
+    return success
+
+
+def merge_property_data(new_data: typing.Dict, original_data: typing.Optional[PropertyData]) -> \
+        typing.Optional[PropertyData]:
+    if not new_data and not original_data:
+        return None
+    return PropertyData(home_name=new_data.get('home_name', original_data.home_name),
+                        property_price=new_data.get('property_price', original_data.property_price),
+                        strata_q=new_data.get('strata_q', original_data.strata_q),
+                        council_q=new_data.get('council_q', original_data.council_q),
+                        water_q=new_data.get('water_q', original_data.water_q))
 
 
 def merge_perso_financial_data(new_data: typing.Dict, original_data: typing.Optional[PersonalFinanceData]) -> \

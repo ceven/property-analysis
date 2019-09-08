@@ -2,14 +2,22 @@
 
 {% block content %}
   <h1> {{home.home_name}}</h1>
-<!--  <p>Details: {{home}}</p> &lt;!&ndash;TODO fix details to be more visually friendly&ndash;&gt;-->
-  <p>
+<!--  <p>Details: {{home}}</p> &lt;!&ndash;TODO remove when not needed anymore&ndash;&gt;-->
+<div>
   <ul>
     {% for k, v in home.items %}
     <li>{{k}} - {{v}}</li> <!--TODO fix details to be more visually friendly-->
     {% endfor %}
   </ul>
-  </p>
+</div>
+
+<div>
+  <form method="post" enctype="application/x-www-form-urlencoded">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" class="btn btn-primary btn-sm" value="Update property">
+  </form>
+</div>
 
   <p>
     Graph: <a href="/property/details/{{home.home_name}}/graph">

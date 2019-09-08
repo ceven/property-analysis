@@ -1,6 +1,6 @@
+import typing
 from collections import namedtuple
 
-import typing
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
@@ -13,7 +13,6 @@ from . import models
 Graph = namedtuple('Graph', 'home_name image_png_base64')
 
 
-# TODO implement removing property and updating property
 # TODO implement 'compare' function between property of interest and similar sales
 # TODO implement ability to 'mark sold' property
 
@@ -35,12 +34,27 @@ def render_svg_img(request, home_name):
 
 
 @check_authenticated
-def get_property(request, home_name):
-    p = models.get_property_by_name(home_name, get_uid(request.session))
-    if p is None:
+def get_or_update_property(request, home_name):
+    context = {}
+    user_id = get_uid(request.session)
+    pd, rd = models.get_property_and_rent_by_name_json(home_name, user_id)
+    if pd is None:
         raise Http404
-    pd, rd = models.get_property_and_rent_by_name_json(home_name, get_uid(request.session))
-    context = {'home': p, 'chart': charts.get_chart_graphic(pd, rd)}
+    pd_dict = pd.__dict__
+    if request.method == 'POST':
+        form = forms.PropertyForm(request.POST)
+        success = False
+        if form.is_valid():
+            success = models.update_property(form, pd, user_id)
+            home_name = form.cleaned_data['home_name']  # FIXME if home name changes, URL is wrong which will cause
+            # 404 if page is reloaded
+            pd, rd = models.get_property_and_rent_by_name_json(home_name, user_id)
+            pd_dict = pd.__dict__
+        context.update({'success': success})
+    form = forms.PropertyForm()
+    form.update_form_fields_values(pd_dict)
+    context.update({'form': form})
+    context.update({'home': pd_dict, 'chart': charts.get_chart_graphic(pd, rd)})
     return render(request, 'property_page.html', context=context)
 
 

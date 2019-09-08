@@ -1,4 +1,5 @@
 import typing
+
 from django import forms
 
 
@@ -8,6 +9,14 @@ class PropertyForm(forms.Form):
     strata_q = forms.IntegerField(label="Strata/q", min_value=0)
     water_q = forms.IntegerField(label="Water/q", min_value=0)
     council_q = forms.IntegerField(label="Council/q", min_value=0)
+
+    def update_form_fields_values(self, existing_property_data: typing.Dict):
+        if existing_property_data and len(existing_property_data) > 0:
+            self.fields['home_name'].initial = existing_property_data.get('home_name', '')
+            self.fields['property_price'].initial = existing_property_data.get('property_price', '')
+            self.fields['strata_q'].initial = existing_property_data.get('strata_q', '')
+            self.fields['water_q'].initial = existing_property_data.get('water_q', '')
+            self.fields['council_q'].initial = existing_property_data.get('council_q', '')
 
 
 class PropertySoldForm(PropertyForm):
