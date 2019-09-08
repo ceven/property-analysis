@@ -47,7 +47,8 @@ def import_property(form: forms.PropertyForm, user_id: str) -> bool:
         property_price=form_data['property_price'],
         strata_q=form_data['strata_q'],
         water_q=form_data['water_q'],
-        council_q=form_data['council_q']
+        council_q=form_data['council_q'],
+        domain_link=form_data.get('domain_link', '')
     )
     return firebasemiddleware.add_property(p_data, user_id)
 
@@ -77,7 +78,8 @@ def merge_property_data(new_data: typing.Dict, original_data: typing.Optional[Pr
                         property_price=new_data.get('property_price', original_data.property_price),
                         strata_q=new_data.get('strata_q', original_data.strata_q),
                         council_q=new_data.get('council_q', original_data.council_q),
-                        water_q=new_data.get('water_q', original_data.water_q))
+                        water_q=new_data.get('water_q', original_data.water_q),
+                        domain_link=new_data.get('domain_link', original_data.domain_link))
 
 
 def merge_perso_financial_data(new_data: typing.Dict, original_data: typing.Optional[PersonalFinanceData]) -> \

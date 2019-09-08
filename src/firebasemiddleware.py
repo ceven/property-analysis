@@ -72,7 +72,8 @@ def convert_to_property_data(d: typing.Dict) -> typing.Optional[PropertyData]:
                         strata_q=d['strata_q'],
                         council_q=d['council_q'],
                         water_q=d['water_q'],
-                        home_name=d['home_name'])
+                        home_name=d['home_name'],
+                        domain_link=d.get('domain_link', ''))
 
 
 def convert_to_perso_financial_data(d: typing.Dict) -> typing.Optional[PersonalFinanceData]:

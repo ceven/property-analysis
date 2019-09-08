@@ -13,6 +13,11 @@
             {% csrf_token %}
             <input id="button-delete" class="btn btn-danger btn-sm" type="submit" value="Remove"/>
           </form>
+        {% if h.domain_link %}
+        <a href="{{h.domain_link}}">
+          <button type="button" class="btn btn-success btn-sm">See on Domain</button>
+        </a>
+        {% endif %}
       </div>
     {% endfor %}
   </ul>

@@ -4,11 +4,12 @@ from django import forms
 
 
 class PropertyForm(forms.Form):
-    home_name = forms.CharField(label="Property name", max_length=250)
+    home_name = forms.CharField(label="Property name", max_length=250, strip=True)
     property_price = forms.IntegerField(label="Property price", min_value=0)
     strata_q = forms.IntegerField(label="Strata/q", min_value=0)
     water_q = forms.IntegerField(label="Water/q", min_value=0)
     council_q = forms.IntegerField(label="Council/q", min_value=0)
+    domain_link = forms.CharField(label="Domain link", min_length=0, max_length=250, strip=True, required=False)
 
     def update_form_fields_values(self, existing_property_data: typing.Dict):
         if existing_property_data and len(existing_property_data) > 0:
@@ -17,6 +18,7 @@ class PropertyForm(forms.Form):
             self.fields['strata_q'].initial = existing_property_data.get('strata_q', '')
             self.fields['water_q'].initial = existing_property_data.get('water_q', '')
             self.fields['council_q'].initial = existing_property_data.get('council_q', '')
+            self.fields['domain_link'].initial = existing_property_data.get('domain_link', '')
 
 
 class PropertySoldForm(PropertyForm):

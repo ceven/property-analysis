@@ -7,11 +7,12 @@ BASELINE_RENT_HOME_NAME = 'My Rental Home'
 class PropertyData:
 
     def __init__(self, property_price, strata_q: int = 1400, council_q: int = 300, water_q: int = 200,
-                 home_name: str = BASELINE_HOME_NAME):
+                 home_name: str = BASELINE_HOME_NAME, domain_link: str = ''):
         assert(property_price >= 0)
 
         # Name
         self.home_name = home_name
+        self.domain_link = domain_link
 
         # Buying costs
         self.property_price = property_price
