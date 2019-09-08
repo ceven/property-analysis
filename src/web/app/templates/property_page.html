@@ -19,8 +19,15 @@
   </form>
 </div>
 
-  <p>
+<div>
     Graph: <a href="/property/details/{{home.home_name}}/graph">
     <img src="data:image/png;base64,{{ chart }}" alt="Click here"></a>
-  </p>
+</div>
+
+<div id="home_name_delete">
+  <form action="{% url 'delete_property' home_name=home.home_name %}" method="POST">
+    {% csrf_token %}
+    <input id="button-delete" class="btn btn-danger btn-sm" type="submit" value="Remove property"/>
+  </form>
+</div>
 {% endblock %}
