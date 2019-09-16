@@ -1,6 +1,7 @@
 import typing
 from collections import namedtuple
 
+from django.contrib import auth
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
@@ -133,8 +134,15 @@ def register(request):
     return render(request, 'register.html', context=context)
 
 
+@check_authenticated
+def logout(request):
+    auth.logout(request)
+    return redirect('/property/login')
+
+
 def login(request):
-    # TODO ask to logout if already logged in
+    # TODO ask if would like to logout if already logged in
+    auth.logout(request)
     context = {'msg': ''}
     if request.method == 'POST':
         user_form = forms.LoginForm(request.POST)
