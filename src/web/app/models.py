@@ -62,7 +62,6 @@ def clean_name(name: str):
 def update_property(form: forms.PropertyForm, original_data: typing.Optional[PropertyData], user_id: str) -> bool:
     form_data = form.cleaned_data
     form_data['home_name'] = clean_name(form_data['home_name'])
-    # TODO if home name changed, need to remove old data
     p_data = merge_property_data(form_data, original_data)
     success = firebasemiddleware.add_property(p_data, user_id) if p_data is not None else False
     if success and original_data is not None and p_data.home_name != original_data.home_name:

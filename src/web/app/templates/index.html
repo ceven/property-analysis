@@ -7,7 +7,7 @@
   <ul>
     {% for h in homes %}
     <li>
-      <div id="home_name_delete">
+      <div class="home_row">
         <a href="/property/details/{{h.home_name}}">{{ h.home_name }}</a>
           <form action="{% url 'delete_property' home_name=h.home_name %}" method="POST">
             {% csrf_token %}

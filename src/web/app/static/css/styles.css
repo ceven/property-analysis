@@ -22,8 +22,8 @@
     align-items: center;
 }
 
-#home_name_delete,
-#home_name_delete > * {
+.home_row,
+.home_row > * {
   display: flex;
   /* align-items in one row */
   flex-direction: row;

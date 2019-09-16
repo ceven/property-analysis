@@ -14,8 +14,20 @@
 <div>
   <form method="post" enctype="application/x-www-form-urlencoded">
     {% csrf_token %}
-    {{ form }}
-    <input type="submit" class="btn btn-primary btn-sm" value="Update property">
+    {% for field in form %}
+    <div class="row">
+      <div class="col-md-2">
+        {{ field.label_tag }}
+        {% if field.help_text %}
+        <sup>{{ field.help_text }}</sup>
+        {% endif %}
+        {{ field.errors }}
+      </div>
+      <div class="col-md-20 pull-left">
+        {{ field }}
+      </div>
+    </div>
+    {% endfor %} <input type="submit" class="btn btn-primary btn-sm" value="Update property">
   </form>
 </div>
 
@@ -24,7 +36,7 @@
     <img src="data:image/png;base64,{{ chart }}" alt="Click here"></a>
 </div>
 
-<div id="home_name_delete">
+<div class="home_row">
   <form action="{% url 'delete_property' home_name=home.home_name %}" method="POST">
     {% csrf_token %}
     <input id="button-delete" class="btn btn-danger btn-sm" type="submit" value="Remove property"/>

@@ -46,8 +46,9 @@ def get_or_update_property(request, home_name):
         success = False
         if form.is_valid():
             success = models.update_property(form, pd, user_id)
-            home_name = form.cleaned_data['home_name']  # FIXME if home name changes, URL is wrong which will cause
-            # 404 if page is reloaded
+            new_home_name = form.cleaned_data['home_name']
+            if home_name != new_home_name:
+                return redirect('/property/details/' + new_home_name)  # FIXME show success message after redirect
             pd, rd = models.get_property_and_rent_by_name_json(home_name, user_id)
             pd_dict = pd.__dict__
         context.update({'success': success})
