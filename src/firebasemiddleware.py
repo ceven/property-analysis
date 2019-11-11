@@ -83,7 +83,8 @@ def convert_to_perso_financial_data(d: typing.Dict) -> typing.Optional[PersonalF
                                salary_net_year=d.get('salaries_net_per_year'),
                                initial_savings=d.get('initial_savings'),
                                monthly_living_expenses=d.get('living_expenses') / 12,
-                               savings_interest_rate=d.get('savings_rate_brut'))
+                               savings_interest_rate=d.get('savings_rate_brut'),
+                               loan_interest_rate=d.get('loan_interest_rate'))
 
 
 def get_all_properties_list(user_id: str) -> ([PropertyData], typing.Optional[PersonalFinanceData]):
@@ -103,6 +104,8 @@ def get_property_and_rent_by_name(home_name: str, user_id: str) -> \
 def json_data_converter(o):
     if isinstance(o, int64):
         return int(o)
+    if isinstance(o, float):
+        return float(o)
 
 
 def save_csv_data(property_file_name: str, perso_financial_data: str, user_id: str) -> bool:

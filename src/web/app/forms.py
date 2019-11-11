@@ -53,6 +53,8 @@ class FinancesForm(forms.Form):
     living_expenses = forms.IntegerField(label="Living expenses/year", min_value=0)
     rent_week = forms.IntegerField(label="Rent/week", min_value=0)
     initial_savings = forms.IntegerField(label="Initial Savings", min_value=0)
+    loan_interest_rate = forms.FloatField(label="Mortgage interest Rate", min_value=0.0, max_value=1.0)
+    savings_rate_brut = forms.FloatField(label="Savings interest Rate", min_value=0.0, max_value=1.0)
 
     def update_form_fields_values(self, existing_finance_data: typing.Dict):
         if existing_finance_data and len(existing_finance_data) > 0:
@@ -60,3 +62,5 @@ class FinancesForm(forms.Form):
             self.fields['living_expenses'].initial = existing_finance_data.get('living_expenses', 0)
             self.fields['rent_week'].initial = existing_finance_data.get('rent_week', 0)
             self.fields['initial_savings'].initial = existing_finance_data.get('initial_savings', 0)
+            self.fields['loan_interest_rate'].initial = existing_finance_data.get('loan_interest_rate', 0)
+            self.fields['savings_rate_brut'].initial = existing_finance_data.get('savings_rate_brut', 0)

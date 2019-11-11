@@ -91,6 +91,7 @@ def merge_perso_financial_data(new_data: typing.Dict, original_data: typing.Opti
                                initial_savings=new_data.get('initial_savings', original_data.initial_savings),
                                monthly_living_expenses=new_data.get('living_expenses',
                                                                     original_data.living_expenses) / 12,
+                               loan_interest_rate=new_data.get('loan_interest_rate', original_data.loan_interest_rate),
                                savings_interest_rate=new_data.get('savings_rate_brut', original_data.savings_rate_brut))
 
 
